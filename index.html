@@ -1,0 +1,2447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>南山书房预约小程序 · 优化方案</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: '#165DFF',
+              brandSoft: '#EAF1FF',
+              accent: '#FF7D00',
+              accentSoft: '#FFF3E8',
+              slateBg: '#F5F7FB',
+              ink: '#1F2937',
+              muted: '#6B7280',
+              line: '#E5E7EB',
+              success: '#22C55E',
+              warning: '#F59E0B',
+              danger: '#EF4444',
+            },
+            boxShadow: {
+              app: '0 18px 65px rgba(22, 93, 255, 0.10)',
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      html, body {
+        background: #f5f7fb;
+        font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+      }
+
+      body,
+      button,
+      .phone-frame,
+      .compare-phone,
+      .service-card,
+      .slot-btn,
+      .optimized-screen,
+      .current-screen {
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, font-size 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:hover:not(:disabled) {
+        filter: brightness(0.98);
+        transform: translateY(-1px);
+      }
+
+      button:active:not(:disabled) {
+        transform: translateY(0) scale(0.98);
+      }
+
+      button:focus-visible {
+        outline: 3px solid rgba(22, 93, 255, 0.28);
+        outline-offset: 2px;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+        padding: 20px 20px 28px;
+      }
+
+      .phone-frame {
+        width: 375px;
+        height: 780px;
+        background: #f7f8fa;
+        border: 1px solid rgba(17, 24, 39, 0.08);
+        border-radius: 32px;
+        box-shadow: 0 18px 60px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        transition: width 0.25s ease, transform 0.25s ease;
+      }
+
+      .phone-frame.compare-layout {
+        width: min(820px, 100%);
+        max-width: 100%;
+      }
+
+      .status-bar {
+        height: 46px;
+        padding: 0 18px 0 14px;
+        background: #ffffff;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+      }
+
+      .phone-header {
+        height: 54px;
+        background: #ffffff;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      }
+
+      .screen {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.28s ease, transform 0.28s ease;
+        pointer-events: none;
+        overflow: hidden;
+        background: #f5f7fb;
+      }
+
+      .screen.active {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .optimized-screen {
+        position: absolute;
+        inset: 0;
+        display: none;
+        background: #f5f7fb;
+        overflow: hidden;
+      }
+
+      .optimized-screen.active {
+        display: block;
+      }
+
+      body.senior-mode .optimized-section,
+      body.senior-mode .optimized-card,
+      body.senior-mode .feature-row,
+      body.senior-mode .venue-card,
+      body.senior-mode .time-chip,
+      body.senior-mode .slot-box,
+      body.senior-mode .queue-card,
+      body.senior-mode .mini-card {
+        font-size: 1.1em;
+      }
+
+      body.senior-mode .optimized-screen .text-xs,
+      body.senior-mode .optimized-screen .text-\[10px\],
+      body.senior-mode .optimized-screen .text-\[11px\] {
+        font-size: 0.95rem !important;
+      }
+
+      body.senior-mode .optimized-screen .text-sm {
+        font-size: 1rem !important;
+      }
+
+      body.senior-mode .optimized-screen .text-base,
+      body.senior-mode .optimized-screen .text-lg,
+      body.senior-mode .optimized-screen .text-xl,
+      body.senior-mode .optimized-screen .text-2xl {
+        font-size: 1.25em !important;
+      }
+
+      .mode-content {
+        display: none;
+        position: relative;
+        width: 100%;
+        flex: 1;
+        min-height: 0;
+        height: calc(100% - 46px);
+      }
+
+      .mode-content.active {
+        display: flex;
+        flex-direction: column;
+        animation: screenFade 0.2s ease both;
+      }
+
+      .compare-mode {
+        display: none;
+        position: relative;
+        width: 100%;
+        max-width: none;
+        flex: 1;
+        min-height: 0;
+        height: calc(100% - 46px);
+        justify-content: center;
+        align-items: center;
+        gap: clamp(12px, 3vw, 24px);
+        padding: 8px 12px 10px;
+        margin: 0 auto;
+        box-sizing: border-box;
+      }
+
+      .compare-mode.active {
+        display: flex !important;
+        animation: screenFade 0.2s ease both;
+      }
+
+      .compare-phone {
+        position: relative;
+        flex: 1 1 0;
+        width: auto;
+        max-width: 375px;
+        min-width: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: #f5f7fb;
+        border: 2px solid #f59e0b;
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+      }
+
+      .compare-status-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 42px;
+        padding: 0 14px 0 12px;
+        background: rgba(255,255,255,0.9);
+        border-bottom: 1px solid rgba(148,163,184,0.12);
+        font-size: 12px;
+        font-weight: 700;
+        color: #334155;
+      }
+
+      .compare-status-icons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .compare-signal {
+        display: inline-flex;
+        gap: 2px;
+        align-items: end;
+      }
+
+      .compare-signal span {
+        display: block;
+        width: 3px;
+        border-radius: 2px;
+        background: #0f172a;
+        opacity: 0.8;
+      }
+
+      .compare-signal span:nth-child(1) { height: 5px; }
+      .compare-signal span:nth-child(2) { height: 7px; }
+      .compare-signal span:nth-child(3) { height: 9px; }
+      .compare-signal span:nth-child(4) { height: 11px; opacity: 0.3; }
+
+      .compare-battery {
+        width: 18px;
+        height: 10px;
+        border-radius: 3px;
+        border: 1.5px solid rgba(15,23,42,0.75);
+        position: relative;
+        background: rgba(15,23,42,0.08);
+      }
+
+      .compare-battery::after {
+        content: "";
+        position: absolute;
+        right: -4px;
+        top: 2px;
+        width: 2px;
+        height: 4px;
+        border-radius: 0 2px 2px 0;
+        background: rgba(15,23,42,0.75);
+      }
+
+      .compare-battery::before {
+        content: "";
+        position: absolute;
+        inset: 1px 1px 1px 1px;
+        border-radius: 2px;
+        background: rgba(15,23,42,0.7);
+      }
+
+      .compare-phone-body {
+        position: relative;
+        flex: 1;
+        background: #f5f7fb;
+        overflow: hidden;
+      }
+
+      .compare-phone.optimized {
+        border-color: #165DFF;
+      }
+
+      .compare-phone-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 38px;
+        padding: 0 12px;
+        background: rgba(255,255,255,0.9);
+        border-bottom: 1px solid rgba(148,163,184,0.12);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .compare-phone-current .compare-phone-header {
+        color: #b45309;
+      }
+
+      .compare-phone.optimized .compare-phone-header {
+        color: #165DFF;
+      }
+
+      .compare-screen {
+        display: none;
+        height: calc(100% - 110px);
+        overflow-y: auto;
+        padding: 12px 10px 18px;
+      }
+
+      .compare-screen.active {
+        display: block;
+        animation: screenFade 0.2s ease both;
+      }
+
+      .compare-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+      }
+
+      .compare-mini-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .compare-metric {
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 10px 8px;
+      }
+
+      .compare-insight {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        background: rgba(255,255,255,0.96);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(22, 93, 255, 0.12);
+        border-radius: 16px;
+        padding: 10px 12px;
+        box-shadow: 0 12px 26px rgba(22, 93, 255, 0.08);
+        transition: max-height 0.2s ease, padding 0.2s ease, box-shadow 0.2s ease;
+        max-height: 180px;
+        overflow: hidden;
+      }
+
+      .compare-insight.is-collapsed {
+        max-height: 42px;
+        padding-bottom: 8px;
+      }
+
+      .compare-insight-toggle {
+        float: right;
+        border: 0;
+        background: transparent;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .compare-insight.optimized {
+        border-color: rgba(22, 93, 255, 0.18);
+      }
+
+      .compare-insight.current {
+        border-color: rgba(245, 158, 11, 0.18);
+      }
+
+      .compare-insight ul {
+        margin: 8px 0 0;
+        padding-left: 16px;
+        font-size: 11px;
+        line-height: 1.7;
+        color: #475569;
+      }
+
+      .compare-insight li + li {
+        margin-top: 2px;
+      }
+
+      .compare-cta {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+        border-radius: 999px;
+        padding: 10px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #165DFF;
+        color: #fff;
+      }
+
+      .compare-cta.secondary {
+        background: #f3f4f6;
+        color: #475569;
+      }
+
+      .compare-cta.warning {
+        background: #f59e0b;
+      }
+
+      .compare-phone .tabbar {
+        display: flex;
+        flex: 0 0 58px;
+        height: 58px;
+        padding: 0 8px;
+        position: relative;
+      }
+
+      .compare-phone .tab-item {
+        font-size: 10px;
+        gap: 2px;
+      }
+
+      @media (max-width: 1100px) {
+        .compare-mode {
+          display: flex;
+        }
+
+        .compare-phone {
+          min-height: 380px;
+        }
+      }
+
+      .tabbar {
+        position: relative;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 72px;
+        background: rgba(255, 255, 255, 0.96);
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+        backdrop-filter: blur(10px);
+        z-index: 10;
+      }
+
+      .tab-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #8a93a6;
+        transition: all 0.2s ease;
+      }
+
+      .tab-item.active {
+        color: #165DFF;
+      }
+
+      .tab-item .icon-wrap {
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+      }
+
+      .tab-item.active .icon-wrap {
+        background: rgba(22, 93, 255, 0.1);
+      }
+
+      .doc-panel {
+        display: none;
+        animation: fadeInDoc 0.24s ease;
+      }
+
+      .doc-panel.active {
+        display: block;
+      }
+
+      @keyframes fadeInDoc {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .mode-pill {
+        position: relative;
+        display: inline-flex;
+        background: #edf2ff;
+        border: 1px solid rgba(22, 93, 255, 0.12);
+        padding: 4px;
+        border-radius: 999px;
+      }
+
+      .mode-btn {
+        position: relative;
+        z-index: 1;
+        min-width: 76px;
+        padding: 7px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #667085;
+        transition: all 0.2s ease;
+      }
+
+      .mode-btn.active {
+        color: #ffffff;
+        background: linear-gradient(135deg, #165DFF 0%, #2c73ff 100%);
+        box-shadow: 0 8px 22px rgba(22, 93, 255, 0.22);
+      }
+
+      .current-screen {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: #f5f7fb;
+        height: 100%;
+      }
+
+      .current-screen.active {
+        display: block;
+        animation: screenFade 0.2s ease both;
+      }
+
+      .subtle-scroll {
+        overflow-y: auto;
+        scrollbar-width: none;
+      }
+
+      .subtle-scroll::-webkit-scrollbar {
+        display: none;
+      }
+
+      .service-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 12px 10px;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+      }
+
+      .service-card:hover,
+      .compare-card:hover,
+      .doc-panel > div > div:hover,
+      .slot-btn:hover:not(.full) {
+        box-shadow: 0 10px 24px rgba(22, 93, 255, 0.1);
+      }
+
+      .status-badge {
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .slot-btn {
+        width: 100%;
+        border-radius: 14px;
+        padding: 10px 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        transition: all 0.18s ease;
+      }
+
+      .slot-btn.selected {
+        background: #eaf1ff;
+        border-color: #99b9ff;
+        color: #165DFF;
+      }
+
+      .slot-btn.full {
+        background: #f3f4f6;
+        border-color: #e5e7eb;
+        color: #9ca3af;
+      }
+
+      .slot-btn.booked {
+        background: #fff7f0;
+        border-color: #ffd7a3;
+        color: #f59e0b;
+      }
+
+      .floating-cta {
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 12px;
+      }
+
+      .modal-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.35);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
+      }
+
+      .modal-backdrop.show {
+        display: flex;
+      }
+
+      .modal-card {
+        width: 310px;
+        background: #fff;
+        border-radius: 18px;
+        padding: 18px 16px 14px;
+        box-shadow: 0 16px 45px rgba(15, 23, 42, 0.15);
+      }
+
+      @keyframes screenFade {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .numeric-pop {
+        display: inline-block;
+        animation: numericPop 0.35s ease both;
+      }
+
+      @keyframes numericPop {
+        from { opacity: 0.35; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (max-width: 1100px) {
+        .main-grid {
+          grid-template-columns: 1fr;
+        }
+
+        aside {
+          max-height: 680px;
+          overflow-y: auto;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .app-shell {
+          padding: 12px 10px 20px;
+        }
+
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .mode-pill {
+          width: 100%;
+        }
+
+        .mode-btn {
+          flex: 1;
+          min-width: 0;
+          padding-inline: 8px;
+        }
+
+        aside {
+          max-height: 520px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="text-slate-800">
+    <div class="app-shell">
+      <div class="mx-auto max-w-[1440px]">
+        <header class="mb-6 flex items-center justify-between gap-4 rounded-[26px] border border-slate-200/80 bg-white/90 px-5 py-4 shadow-sm backdrop-blur-sm">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-[#3d7bff] text-lg font-bold text-white shadow-md shadow-blue-200/60">
+              书
+            </div>
+            <h1 class="text-lg font-bold tracking-tight text-slate-800 sm:text-xl">
+              南山书房预约小程序 · 优化方案
+            </h1>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="mode-pill" aria-label="模式切换">
+              <button class="mode-btn" data-mode="current" type="button">现状版</button>
+              <button class="mode-btn active" data-mode="optimized" type="button">优化版</button>
+              <button class="mode-btn" data-mode="compare" type="button">对比模式</button>
+            </div>
+            <span class="hidden text-xs font-medium text-slate-500 sm:inline">Vibe Coding 产品原型</span>
+          </div>
+        </header>
+
+        <main class="main-grid grid gap-6 xl:grid-cols-[65%_35%]">
+          <section class="relative rounded-[30px] border border-slate-200/80 bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Prototype Demo</p>
+                <h2 class="mt-1 text-xl font-bold text-slate-800">小程序交互原型</h2>
+              </div>
+              <div id="modeBadge" class="rounded-full bg-brandSoft px-3 py-1 text-xs font-semibold text-brand">优化版已启用</div>
+            </div>
+
+            <div class="flex min-h-[820px] items-center justify-center rounded-[24px] bg-gradient-to-br from-slate-50 via-white to-blue-50 p-5">
+              <div class="phone-frame" id="prototypePhoneFrame">
+                <div class="status-bar flex items-center justify-between text-[13px] font-semibold text-slate-700">
+                  <span>9:41</span>
+                  <div class="flex items-center gap-2">
+                    <div class="flex gap-1">
+                      <span class="h-2.5 w-2.5 rounded-sm bg-slate-800 opacity-80"></span>
+                      <span class="h-2.5 w-2.5 rounded-sm bg-slate-800 opacity-80"></span>
+                      <span class="h-2.5 w-2.5 rounded-sm bg-slate-800 opacity-80"></span>
+                      <span class="h-2.5 w-2.5 rounded-sm bg-slate-300"></span>
+                    </div>
+                    <div class="h-2.5 w-6 rounded-full bg-slate-800 opacity-80">
+                      <div class="h-2.5 w-3 rounded-full bg-slate-200"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mode-content" data-mode="current">
+                  <div class="phone-header flex items-center justify-between px-4 text-base font-bold text-slate-800">
+                    <button class="text-lg text-slate-500" data-back="true" type="button">‹</button>
+                    <span id="currentPageTitle">南山书房</span>
+                    <div class="w-6"></div>
+                  </div>
+
+                  <div class="relative flex-1 overflow-hidden bg-[#f5f7fb]">
+                    <section class="current-screen active" data-page="home">
+                      <div class="subtle-scroll h-full p-4 pb-24">
+                        <div class="rounded-[18px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-3 flex items-center justify-between">
+                            <div>
+                              <p class="text-[10px] tracking-[0.22em] text-slate-400">NANSHAN STUDY</p>
+                              <h3 class="mt-1 text-2xl font-bold leading-tight text-slate-800">南山书房</h3>
+                            </div>
+                            <div class="h-10 w-10 rounded-2xl bg-brandSoft text-center text-lg leading-10 text-brand">书</div>
+                          </div>
+                          <p class="text-xs text-slate-500">新时代文明实践中心</p>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-2 gap-3">
+                          <button class="service-card text-left" data-go="home" type="button">
+                            <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-brandSoft text-base font-bold text-brand">预</div>
+                            <p class="text-sm font-semibold text-slate-800">南图预借</p>
+                          </button>
+                          <button class="service-card text-left" data-go="home" type="button">
+                            <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-base font-bold text-accent">须</div>
+                            <p class="text-sm font-semibold text-slate-800">预约须知</p>
+                          </button>
+                          <button class="service-card text-left" data-go="home" type="button">
+                            <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-base font-bold text-slate-700">E</div>
+                            <p class="text-sm font-semibold text-slate-800">南图E借</p>
+                          </button>
+                          <button class="service-card text-left" data-go="venue" type="button">
+                            <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-brandSoft text-base font-bold text-brand">约</div>
+                            <p class="text-sm font-semibold text-slate-800">书房预约</p>
+                          </button>
+                        </div>
+
+                        <div class="mt-5 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-3 flex items-center justify-between">
+                            <h4 class="text-sm font-bold text-slate-800">书房列表</h4>
+                            <span class="text-[10px] text-slate-400">按距离排序</span>
+                          </div>
+                          <div class="space-y-3">
+                            <div class="flex items-center gap-3 rounded-[16px] bg-slate-50 p-3">
+                              <div class="h-12 w-12 rounded-2xl bg-gradient-to-br from-brand to-[#5d8cff]" style="opacity:0.9"></div>
+                              <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-semibold text-slate-800">南山书房·丽雅苑</p>
+                                <p class="mt-1 text-[11px] text-slate-500">地址：深圳市南山区</p>
+                                <p class="text-[11px] text-slate-400">距离：1.4公里</p>
+                              </div>
+                              <button class="rounded-full bg-brand px-3 py-2 text-xs font-semibold text-white" data-go="venue" type="button">立即了解</button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mt-5 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex flex-wrap gap-2">
+                            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] text-slate-600">#沉浸阅读</span>
+                            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] text-slate-600">#休闲阅读</span>
+                            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] text-slate-600">#馨语空间</span>
+                            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] text-slate-600">#丽雅艺术空间</span>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="current-screen" data-page="venue">
+                      <div class="subtle-scroll h-full p-4 pb-28">
+                        <div class="mb-3 rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center justify-between">
+                            <div>
+                              <p class="text-[10px] tracking-[0.22em] text-slate-400">Venue</p>
+                              <h3 class="mt-1 text-xl font-bold text-slate-800">丽雅苑</h3>
+                            </div>
+                            <span class="text-xs text-brand">开放中</span>
+                          </div>
+                        </div>
+
+                        <div class="space-y-3">
+                          <div class="rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                            <div class="flex items-center justify-between">
+                              <span class="text-sm font-semibold text-slate-800">沉浸阅读1区</span>
+                              <button class="rounded-full bg-brand px-3 py-1.5 text-[11px] font-semibold text-white" data-go="seat" type="button">预约</button>
+                            </div>
+                            <p class="mt-2 text-[11px] text-slate-500">预约座位制，一人一座</p>
+                          </div>
+                          <div class="rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                            <div class="flex items-center justify-between">
+                              <span class="text-sm font-semibold text-slate-800">沉浸阅读2区</span>
+                              <button class="rounded-full bg-brand px-3 py-1.5 text-[11px] font-semibold text-white" data-go="seat" type="button">预约</button>
+                            </div>
+                            <p class="mt-2 text-[11px] text-slate-500">预约座位制，一人一座</p>
+                          </div>
+                          <div class="rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                            <div class="flex items-center justify-between">
+                              <span class="text-sm font-semibold text-slate-800">休闲阅读区</span>
+                              <button class="rounded-full bg-brand px-3 py-1.5 text-[11px] font-semibold text-white" data-go="seat" type="button">预约</button>
+                            </div>
+                            <p class="mt-2 text-[11px] text-slate-500">预约座位制，一人一座</p>
+                          </div>
+                          <div class="rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                            <div class="flex items-center justify-between">
+                              <span class="text-sm font-semibold text-slate-800">馨语空间</span>
+                              <button class="rounded-full bg-brand px-3 py-1.5 text-[11px] font-semibold text-white" data-go="seat" type="button">预约</button>
+                            </div>
+                            <p class="mt-2 text-[11px] text-slate-500">预约座位制，一人一座</p>
+                          </div>
+                          <div class="rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                            <div class="flex items-center justify-between">
+                              <span class="text-sm font-semibold text-slate-800">丽雅艺术空间</span>
+                              <button class="rounded-full bg-brand px-3 py-1.5 text-[11px] font-semibold text-white" data-go="seat" type="button">预约</button>
+                            </div>
+                            <p class="mt-2 text-[11px] text-slate-500">预约座位制，一人一座</p>
+                          </div>
+                        </div>
+
+                        <div class="mt-5 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <p class="text-[11px] text-slate-500">地址地图</p>
+                          <p class="mt-2 text-sm font-semibold text-slate-800">深圳市南山区丽雅苑文化中心</p>
+                          <button class="mt-3 w-full rounded-full bg-brand py-3 text-sm font-semibold text-white" data-go="seat" type="button">立即预约</button>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="current-screen" data-page="seat">
+                      <div class="subtle-scroll h-full p-4 pb-24">
+                        <div class="rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-500">日期</span>
+                            <span class="text-[11px] text-slate-400">可提前预约</span>
+                          </div>
+                          <div class="mt-3 grid grid-cols-3 gap-2">
+                            <button class="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-600" data-date="周三" type="button">周三</button>
+                            <button class="rounded-full bg-brand px-3 py-2 text-sm font-semibold text-white" data-date="周四" type="button">周四</button>
+                            <button class="rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-600" data-date="周五" type="button">周五</button>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex gap-2 overflow-x-auto pb-1 text-[11px]">
+                            <button class="whitespace-nowrap rounded-full bg-brand px-3 py-1.5 font-semibold text-white" data-zone="沉浸阅读1区" type="button">沉浸阅读1区</button>
+                            <button class="whitespace-nowrap rounded-full bg-slate-100 px-3 py-1.5 font-semibold text-slate-600" data-zone="沉浸阅读2区" type="button">沉浸阅读2区</button>
+                            <button class="whitespace-nowrap rounded-full bg-slate-100 px-3 py-1.5 font-semibold text-slate-600" data-zone="休闲阅读区" type="button">休闲阅读区</button>
+                            <button class="whitespace-nowrap rounded-full bg-slate-100 px-3 py-1.5 font-semibold text-slate-600" data-zone="馨语空间" type="button">馨语空间</button>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-2 flex items-center justify-between">
+                            <h4 class="text-sm font-bold text-slate-800">时段选择</h4>
+                            <span class="text-[10px] text-slate-400">每段1小时</span>
+                          </div>
+                          <div class="space-y-2">
+                            <button class="slot-btn selected" data-time="11:00-12:00" type="button">
+                              <span class="block font-bold">11:00-12:00</span>
+                              <span class="mt-1 block text-[10px] text-current/80">可预订</span>
+                            </button>
+                            <button class="slot-btn" data-time="12:00-13:00" type="button">
+                              <span class="block font-bold">12:00-13:00</span>
+                              <span class="mt-1 block text-[10px] text-current/80">可预订</span>
+                            </button>
+                            <button class="slot-btn full" data-time="13:00-14:00" type="button">
+                              <span class="block font-bold">13:00-14:00</span>
+                              <span class="mt-1 block text-[10px] text-current/80">已约满</span>
+                            </button>
+                            <button class="slot-btn booked" data-time="14:00-15:00" type="button">
+                              <span class="block font-bold">14:00-15:00</span>
+                              <span class="mt-1 block text-[10px] text-current/80">已预约</span>
+                            </button>
+                            <button class="slot-btn" data-time="15:00-16:00" type="button">
+                              <span class="block font-bold">15:00-16:00</span>
+                              <span class="mt-1 block text-[10px] text-current/80">可预订</span>
+                            </button>
+                            <button class="slot-btn" data-time="16:00-17:00" type="button">
+                              <span class="block font-bold">16:00-17:00</span>
+                              <span class="mt-1 block text-[10px] text-current/80">可预订</span>
+                            </button>
+                            <button class="slot-btn full" data-time="17:00-18:00" type="button">
+                              <span class="block font-bold">17:00-18:00</span>
+                              <span class="mt-1 block text-[10px] text-current/80">已约满</span>
+                            </button>
+                          </div>
+                          <p class="mt-3 text-[10px] leading-5 text-slate-500">规则提示：每个时间段代表1小时，一次可多选3小时，结束后可再次预约。</p>
+                        </div>
+                      </div>
+
+                      <div class="floating-cta">
+                        <button class="w-full rounded-full bg-brand py-3 text-sm font-semibold text-white" data-go="confirm" type="button">确认选择</button>
+                      </div>
+                    </section>
+
+                    <section class="current-screen" data-page="confirm">
+                      <div class="subtle-scroll h-full p-4 pb-28">
+                        <div class="rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <h3 class="text-lg font-bold text-slate-800">预约确认</h3>
+                          <div class="mt-4 space-y-3 text-sm text-slate-600">
+                            <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
+                              <span>已选座位</span>
+                              <span class="font-semibold text-slate-800">沉浸阅读1区10号桌</span>
+                            </div>
+                            <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
+                              <span>已选时间</span>
+                              <span class="font-semibold text-slate-800">2026-09-16 12:00-15:00</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <p class="mb-3 text-sm font-bold text-slate-800">预约规则</p>
+                          <ul class="space-y-2 text-[11px] leading-6 text-slate-600">
+                            <li>• 预约后须在订单开始前30分钟至开始后20分钟内签到</li>
+                            <li>• 如无法按时到馆，至少在订单开始前20分钟取消预约</li>
+                            <li>• 未按时签到记录1次违约，累计3次进入黑名单，30天不可使用</li>
+                          </ul>
+                        </div>
+
+                        <label class="mt-4 flex items-start gap-2 rounded-[18px] bg-white p-3 text-[11px] leading-5 text-slate-600 shadow-sm ring-1 ring-slate-200/80">
+                          <input type="checkbox" class="mt-1 h-4 w-4 accent-brand" />
+                          <span>我已阅读并同意《南山书房服务使用协议》</span>
+                        </label>
+                      </div>
+
+                      <div class="floating-cta">
+                        <button class="w-full rounded-full bg-brand py-3 text-sm font-semibold text-white" data-submit="booking" type="button">提交预约</button>
+                      </div>
+                    </section>
+
+                    <section class="current-screen" data-page="success">
+                      <div class="subtle-scroll h-full p-4 pb-28">
+                        <div class="mt-8 text-center">
+                          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl text-emerald-600">✓</div>
+                          <h3 class="mt-5 text-2xl font-bold text-slate-800">预约成功</h3>
+                        </div>
+
+                        <div class="mt-6 rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="space-y-3 text-sm text-slate-600">
+                            <div class="flex justify-between"><span>书房</span><span class="font-semibold text-slate-800">南山书房·丽雅苑</span></div>
+                            <div class="flex justify-between"><span>时间</span><span class="font-semibold text-slate-800">2026-09-16 12:00-15:00</span></div>
+                            <div class="flex justify-between"><span>座位</span><span class="font-semibold text-slate-800">沉浸阅读1区10号桌</span></div>
+                            <div class="flex justify-between"><span>下单时间</span><span class="font-semibold text-slate-800">2026-09-16 09:41</span></div>
+                            <div class="flex justify-between"><span>订单编号</span><span class="font-semibold text-slate-800">NS202609160001</span></div>
+                          </div>
+                        </div>
+
+                        <div class="mt-5 grid grid-cols-3 gap-2">
+                          <button class="rounded-[16px] bg-slate-100 px-2 py-3 text-[11px] font-semibold text-slate-700" type="button">座位地图</button>
+                          <button class="rounded-[16px] bg-slate-100 px-2 py-3 text-[11px] font-semibold text-slate-700" data-go="booking" type="button">取消预约</button>
+                          <button class="rounded-[16px] bg-slate-100 px-2 py-3 text-[11px] font-semibold text-slate-700" type="button">使用说明</button>
+                        </div>
+
+                        <div class="mt-5 rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <p class="text-sm font-bold text-slate-800">使用说明</p>
+                          <ul class="mt-3 space-y-2 text-[11px] leading-6 text-slate-600">
+                            <li>• 预约成功后，请按时到馆，提前查看座位地图。</li>
+                            <li>• 订单开始前30分钟至开始后20分钟内，需完成签到。</li>
+                            <li>• 若无法按时到馆，请至少提前20分钟取消预约。</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="current-screen" data-page="bookingList">
+                      <div class="subtle-scroll h-full p-4 pb-24">
+                        <div class="rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex rounded-full bg-slate-100 p-1">
+                            <button class="flex-1 rounded-full bg-brand px-2 py-2 text-[11px] font-semibold text-white" data-booking-tab="unfinished" type="button">未完成</button>
+                            <button class="flex-1 rounded-full px-2 py-2 text-[11px] font-semibold text-slate-600" data-booking-tab="completed" type="button">已完成</button>
+                            <button class="flex-1 rounded-full px-2 py-2 text-[11px] font-semibold text-slate-600" data-booking-tab="cancelled" type="button">已取消</button>
+                          </div>
+                        </div>
+
+                        <div id="bookingListContent" class="mt-4 space-y-3"></div>
+                      </div>
+                    </section>
+
+                    <section class="current-screen" data-page="profileList">
+                      <div class="subtle-scroll h-full p-4 pb-28">
+                        <div class="rounded-[22px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center gap-3">
+                            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand to-[#6b9cff] text-lg font-bold text-white">L</div>
+                            <div>
+                              <p class="text-base font-bold text-slate-800">李小明</p>
+                              <p class="text-xs text-slate-500">读者证号：A1201001</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 space-y-2 rounded-[20px] bg-white p-2 shadow-sm ring-1 ring-slate-200/80">
+                          <button class="flex w-full items-center justify-between rounded-[14px] px-3 py-3 text-left text-sm text-slate-700 hover:bg-slate-50" data-go="bookingList" type="button"><span>预约记录</span><span>›</span></button>
+                          <button class="flex w-full items-center justify-between rounded-[14px] px-3 py-3 text-left text-sm text-slate-700 hover:bg-slate-50" data-go="violation" type="button"><span>违约记录</span><span>›</span></button>
+                          <button class="flex w-full items-center justify-between rounded-[14px] px-3 py-3 text-left text-sm text-slate-700 hover:bg-slate-50" data-go="faceAuth" type="button"><span>办理读者证</span><span>›</span></button>
+                          <button class="flex w-full items-center justify-between rounded-[14px] px-3 py-3 text-left text-sm text-slate-700 hover:bg-slate-50" data-go="profileList" type="button"><span>帮助与反馈</span><span>›</span></button>
+                          <button class="flex w-full items-center justify-between rounded-[14px] px-3 py-3 text-left text-sm text-slate-700 hover:bg-slate-50" data-go="profileList" type="button"><span>自助解绑</span><span>›</span></button>
+                          <button class="flex w-full items-center justify-between rounded-[14px] px-3 py-3 text-left text-sm text-slate-700 hover:bg-slate-50" data-go="profileList" type="button"><span>联系小管家</span><span>›</span></button>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="current-screen" data-page="violation">
+                      <div class="subtle-scroll h-full p-4 pb-24">
+                        <div class="rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <h3 class="text-lg font-bold text-slate-800">违约记录</h3>
+                          <div class="mt-4 space-y-3">
+                            <div class="rounded-[16px] bg-slate-50 p-3">
+                              <div class="flex items-center justify-between">
+                                <span class="text-sm font-semibold text-slate-800">违约时间</span>
+                                <span class="text-[11px] text-red-500">已记录</span>
+                              </div>
+                              <p class="mt-2 text-xs text-slate-500">2026-09-08 13:30</p>
+                              <p class="mt-2 text-xs text-slate-500">事由：未按时签到</p>
+                              <p class="mt-2 text-xs text-slate-500">订单号：NS202609080123</p>
+                            </div>
+                            <div class="rounded-[16px] bg-slate-50 p-3">
+                              <div class="flex items-center justify-between">
+                                <span class="text-sm font-semibold text-slate-800">违约时间</span>
+                                <span class="text-[11px] text-red-500">已记录</span>
+                              </div>
+                              <p class="mt-2 text-xs text-slate-500">2026-09-02 18:20</p>
+                              <p class="mt-2 text-xs text-slate-500">事由：预约开始前未及时取消</p>
+                              <p class="mt-2 text-xs text-slate-500">订单号：NS202609020987</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="current-screen" data-page="faceAuth">
+                      <div class="subtle-scroll h-full p-4 pb-24">
+                        <div class="rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <h3 class="text-xl font-bold text-slate-800">授权人脸实名认证</h3>
+                          <p class="mt-3 text-[11px] leading-6 text-slate-600">
+                            为保障预约服务的真实性和安全性，需完成实名校验。根据相关规则，使用人脸识别核验您的身份信息，并建立预约服务的信任机制。
+                            认证完成后，您方可继续使用预约、活动签到等相关功能，确保每位读者在馆使用行为符合法律法规和服务规范。
+                          </p>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="space-y-3">
+                            <div>
+                              <label class="mb-1 block text-[11px] text-slate-500">姓名</label>
+                              <input class="w-full rounded-[12px] border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none" value="李小明" />
+                            </div>
+                            <div>
+                              <label class="mb-1 block text-[11px] text-slate-500">身份证号</label>
+                              <input class="w-full rounded-[12px] border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none" value="440303199801011234" />
+                            </div>
+                            <button class="w-full rounded-full bg-brand py-3 text-sm font-semibold text-white" type="button">开启人脸识别</button>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+
+                  <nav class="tabbar flex items-center justify-around px-2">
+                    <button class="tab-item active" data-tab="home" type="button">
+                      <span class="icon-wrap"><svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true"><path d="M12 3.3 3.7 10.8A1.1 1.1 0 0 0 4.1 12.8H5v7.2a1 1 0 0 0 1 1h3.2a1 1 0 0 0 1-1v-4.1h3.6v4.1a1 1 0 0 0 1 1H18a1 1 0 0 0 1-1v-7.2h.9a1.1 1.1 0 0 0 .4-2l-8.3-7.5Z"></path></svg></span>
+                      <span>首页</span>
+                    </button>
+                    <button class="tab-item" data-tab="bookingList" type="button">
+                      <span class="icon-wrap"><svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true"><path d="M7 2.75h1.2v1.2H15V2.75H16.8v1.2h1.8A2.45 2.45 0 0 1 21 6.4v12.15A2.45 2.45 0 0 1 18.6 21H5.4A2.45 2.45 0 0 1 3 18.55V6.4a2.45 2.45 0 0 1 2.4-2.45h1.8V2.75Zm11.4 7.4H5.6v8.4c0 .45.35.8.8.8h11.2a.8.8 0 0 0 .8-.8v-8.4Zm-8.8 2.1a1 1 0 0 1 1-1h4.8a1 1 0 0 1 0 2H10.6a1 1 0 0 1-1-1Z"></path></svg></span>
+                      <span>预约</span>
+                    </button>
+                    <button class="tab-item" data-tab="profileList" type="button">
+                      <span class="icon-wrap"><svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true"><path d="M12 12.25A3.75 3.75 0 1 0 12 4.75a3.75 3.75 0 0 0 0 7.5Zm-6.5 7.1A6.5 6.5 0 0 1 18.5 19.35v.5h-13v-.5Z"></path></svg></span>
+                      <span>我的</span>
+                    </button>
+                  </nav>
+                </div>
+
+                <div class="mode-content active" data-mode="optimized">
+                  <div class="phone-header flex items-center justify-between px-4 text-base font-bold text-slate-800">
+                    <button class="text-lg text-slate-500" data-optimized-back="true" type="button">‹</button>
+                    <span id="optimizedPageTitle">南山书房</span>
+                    <div class="w-6"></div>
+                  </div>
+
+                  <div class="relative flex-1 overflow-hidden bg-[#f5f7fb]">
+                    <section class="optimized-screen active" data-opt-page="optimized_home">
+                      <div class="subtle-scroll h-full px-4 py-4 pb-24">
+                        <div class="rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-[11px] text-slate-500">
+                            <span>⌕</span>
+                            <span>搜索 场馆/书房/座位</span>
+                          </div>
+                          <div class="mt-3 flex items-center justify-between text-[11px] text-slate-500">
+                            <span>南山区 · 深圳</span>
+                            <span class="text-brand">定位成功</span>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-2 gap-3">
+                          <button class="rounded-[18px] bg-white p-3 text-left shadow-sm ring-1 ring-slate-200/80" data-opt-go="optimized_seat" type="button">
+                            <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-brandSoft text-base font-bold text-brand">快</div>
+                            <p class="text-sm font-semibold text-slate-800">快速预约</p>
+                          </button>
+                          <button class="rounded-[18px] bg-white p-3 text-left shadow-sm ring-1 ring-slate-200/80" data-opt-go="optimized_venue" type="button">
+                            <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-base font-bold text-accent">近</div>
+                            <p class="text-sm font-semibold text-slate-800">附近场馆</p>
+                          </button>
+                          <button class="rounded-[18px] bg-white p-3 text-left shadow-sm ring-1 ring-slate-200/80" data-opt-go="optimized_booking" type="button">
+                            <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-base font-bold text-slate-700">约</div>
+                            <p class="text-sm font-semibold text-slate-800">我的预约</p>
+                          </button>
+                          <button class="rounded-[18px] bg-white p-3 text-left shadow-sm ring-1 ring-slate-200/80" data-opt-go="optimized_profile" type="button">
+                            <div class="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-brandSoft text-base font-bold text-brand">证</div>
+                            <p class="text-sm font-semibold text-slate-800">读者证</p>
+                          </button>
+                        </div>
+
+                        <div class="mt-5 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-3 flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800">实时概览</h3>
+                            <span class="text-[10px] text-slate-400">已同步</span>
+                          </div>
+                          <div class="grid grid-cols-3 gap-2">
+                            <div class="rounded-[16px] bg-slate-50 p-2">
+                              <p class="text-[10px] text-slate-500">可预约</p>
+                              <p class="mt-1 text-lg font-bold text-slate-800">14</p>
+                            </div>
+                            <div class="rounded-[16px] bg-slate-50 p-2">
+                              <p class="text-[10px] text-slate-500">空位</p>
+                              <p class="mt-1 text-lg font-bold text-slate-800">862</p>
+                            </div>
+                            <div class="rounded-[16px] bg-slate-50 p-2">
+                              <p class="text-[10px] text-slate-500">峰时</p>
+                              <p class="mt-1 text-sm font-bold text-slate-800">18:00-20:00</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mt-5 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-3 flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800">场馆列表</h3>
+                            <span class="text-[10px] text-slate-400">按距离排序</span>
+                          </div>
+                          <div class="space-y-3">
+                            <div class="rounded-[18px] bg-slate-50 p-3">
+                              <div class="flex items-center justify-between">
+                                <div>
+                                  <p class="text-sm font-semibold text-slate-800">南山图书馆总馆</p>
+                                  <p class="mt-1 text-[11px] text-slate-500">距离 0.8km · 剩余空位 118</p>
+                                </div>
+                                <button class="rounded-full bg-brand px-3 py-2 text-[10px] font-semibold text-white" data-opt-go="optimized_venue" type="button">立即预约</button>
+                              </div>
+                              <div class="mt-3 flex items-center gap-2">
+                                <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
+                                  <div class="h-full w-[90%] rounded-full bg-red-500"></div>
+                                </div>
+                                <span class="text-[10px] font-semibold text-red-500">90%+</span>
+                              </div>
+                            </div>
+
+                            <div class="rounded-[18px] bg-slate-50 p-3">
+                              <div class="flex items-center justify-between">
+                                <div>
+                                  <p class="text-sm font-semibold text-slate-800">南山图书馆西丽分馆</p>
+                                  <p class="mt-1 text-[11px] text-slate-500">距离 2.1km · 剩余空位 86</p>
+                                </div>
+                                <button class="rounded-full bg-brand px-3 py-2 text-[10px] font-semibold text-white" data-opt-go="optimized_venue" type="button">立即预约</button>
+                              </div>
+                              <div class="mt-3 flex items-center gap-2">
+                                <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
+                                  <div class="h-full w-[74%] rounded-full bg-orange-500"></div>
+                                </div>
+                                <span class="text-[10px] font-semibold text-orange-500">74%</span>
+                              </div>
+                            </div>
+
+                            <div class="rounded-[18px] bg-slate-50 p-3">
+                              <div class="flex items-center justify-between">
+                                <div>
+                                  <p class="text-sm font-semibold text-slate-800">南山书房·丽雅苑</p>
+                                  <p class="mt-1 text-[11px] text-slate-500">距离 1.4km · 剩余空位 64</p>
+                                </div>
+                                <button class="rounded-full bg-brand px-3 py-2 text-[10px] font-semibold text-white" data-opt-go="optimized_venue" type="button">立即预约</button>
+                              </div>
+                              <div class="mt-3 flex items-center gap-2">
+                                <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-200">
+                                  <div class="h-full w-[68%] rounded-full bg-emerald-500"></div>
+                                </div>
+                                <span class="text-[10px] font-semibold text-emerald-500">68%</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mt-5 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-2 flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800">热门时段预警</h3>
+                            <span class="text-[10px] text-orange-500">高峰提醒</span>
+                          </div>
+                          <div class="space-y-2 text-[11px] text-slate-600">
+                            <p>• 18:00-20:00 预约热度最高，建议提前抢座</p>
+                            <p>• 7:00-9:00 早间空位较充足</p>
+                          </div>
+                        </div>
+
+                        <div class="mt-5 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-2 flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800">附近空位推荐</h3>
+                            <span class="text-[10px] text-brand">3个推荐</span>
+                          </div>
+                          <div class="space-y-2 text-[11px] text-slate-600">
+                            <p>• 南山书房·海德园 · 2.3km · 24个空位</p>
+                            <p>• 南山图书馆科技分馆 · 1.1km · 31个空位</p>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="optimized-screen" data-opt-page="optimized_venue">
+                      <div class="subtle-scroll h-full px-4 py-4 pb-24">
+                        <div class="rounded-[20px] bg-gradient-to-br from-slate-200 to-slate-100 p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center justify-between text-[10px] text-slate-600">
+                            <span>实景图</span>
+                            <span>收藏</span>
+                          </div>
+                          <div class="mt-8 rounded-[18px] bg-white/70 p-3 backdrop-blur-sm">
+                            <p class="text-[10px] tracking-[0.2em] text-slate-500">Liya Yuan</p>
+                            <h3 class="mt-1 text-xl font-bold text-slate-800">丽雅苑</h3>
+                            <p class="mt-1 text-[11px] text-slate-600">深圳市南山区 · 距离 1.4km</p>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-2 gap-2">
+                          <div class="rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                            <p class="text-[10px] text-slate-500">剩余空位</p>
+                            <p class="mt-2 text-lg font-bold text-slate-800">64</p>
+                          </div>
+                          <div class="rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                            <p class="text-[10px] text-slate-500">平均停留</p>
+                            <p class="mt-2 text-lg font-bold text-slate-800">2.3h</p>
+                          </div>
+                          <div class="rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                            <p class="text-[10px] text-slate-500">高峰时段</p>
+                            <p class="mt-2 text-lg font-bold text-slate-800">18:00</p>
+                          </div>
+                          <div class="rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                            <p class="text-[10px] text-slate-500">实时上座率</p>
+                            <p class="mt-2 text-lg font-bold text-red-500">86%</p>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-3 flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800">座位分区</h3>
+                            <span class="text-[10px] text-slate-400">实时热度</span>
+                          </div>
+                          <div class="space-y-2">
+                            <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-2">
+                              <span class="text-sm font-medium text-slate-800">沉浸自习区</span>
+                              <span class="text-[11px] text-slate-500">18个空位</span>
+                            </div>
+                            <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-2">
+                              <span class="text-sm font-medium text-slate-800">休闲阅览区</span>
+                              <span class="text-[11px] text-slate-500">24个空位</span>
+                            </div>
+                            <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-2">
+                              <span class="text-sm font-medium text-slate-800">电脑办公区</span>
+                              <span class="text-[11px] text-slate-500">12个空位</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <h3 class="text-sm font-bold text-slate-800">实时座位热力图</h3>
+                          <div class="mt-3 grid grid-cols-4 gap-2">
+                            <div class="h-8 rounded-[8px] bg-emerald-400"></div>
+                            <div class="h-8 rounded-[8px] bg-emerald-300"></div>
+                            <div class="h-8 rounded-[8px] bg-orange-400"></div>
+                            <div class="h-8 rounded-[8px] bg-red-500"></div>
+                            <div class="h-8 rounded-[8px] bg-orange-300"></div>
+                            <div class="h-8 rounded-[8px] bg-emerald-400"></div>
+                            <div class="h-8 rounded-[8px] bg-red-500"></div>
+                            <div class="h-8 rounded-[8px] bg-emerald-500"></div>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-2 flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800">时段筛选</h3>
+                            <span class="text-[10px] text-slate-400">支持快速切换</span>
+                          </div>
+                          <div class="flex gap-2 text-[11px]">
+                            <button class="rounded-full bg-brand px-3 py-2 font-semibold text-white" type="button">全天</button>
+                            <button class="rounded-full bg-slate-100 px-3 py-2 font-semibold text-slate-600" type="button">上午</button>
+                            <button class="rounded-full bg-slate-100 px-3 py-2 font-semibold text-slate-600" type="button">下午</button>
+                            <button class="rounded-full bg-slate-100 px-3 py-2 font-semibold text-slate-600" type="button">晚间</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="absolute inset-x-4 bottom-4">
+                        <button class="w-full rounded-full bg-brand py-3 text-sm font-semibold text-white" data-opt-go="optimized_seat" type="button">立即预约</button>
+                      </div>
+                    </section>
+
+                    <section class="optimized-screen" data-opt-page="optimized_seat">
+                      <div class="subtle-scroll h-full px-4 py-4 pb-28">
+                        <div class="rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-slate-500">场馆</span>
+                            <span class="text-sm font-semibold text-slate-800">丽雅苑</span>
+                          </div>
+                          <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+                            <button class="rounded-full bg-slate-100 px-2 py-2 text-[11px] font-semibold text-slate-600" type="button">周三</button>
+                            <button class="rounded-full bg-brand px-2 py-2 text-[11px] font-semibold text-white" type="button">周四</button>
+                            <button class="rounded-full bg-slate-100 px-2 py-2 text-[11px] font-semibold text-slate-600" type="button">周五</button>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800">时段选择</h3>
+                            <span class="text-[10px] text-slate-400">最小15分钟</span>
+                          </div>
+                          <div class="mt-3 flex flex-wrap gap-2 text-[10px]">
+                            <button class="rounded-full bg-brand px-2 py-2 font-semibold text-white" type="button">1小时</button>
+                            <button class="rounded-full bg-slate-100 px-2 py-2 font-semibold text-slate-600" type="button">2小时</button>
+                            <button class="rounded-full bg-slate-100 px-2 py-2 font-semibold text-slate-600" type="button">半天</button>
+                            <button class="rounded-full bg-slate-100 px-2 py-2 font-semibold text-slate-600" type="button">全天</button>
+                          </div>
+                          <div class="mt-3 flex items-center justify-between rounded-[14px] bg-slate-50 p-2 text-[11px] text-slate-600">
+                            <span>起始时间</span>
+                            <span class="font-semibold text-slate-800">10:00</span>
+                          </div>
+                          <div class="mt-2 flex items-center justify-between rounded-[14px] bg-slate-50 p-2 text-[11px] text-slate-600">
+                            <span>结束时间</span>
+                            <span class="font-semibold text-slate-800">17:00</span>
+                          </div>
+                          <p class="mt-3 text-[10px] leading-5 text-slate-500">备考用户推荐全天时段，无需重复抢座</p>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <h3 class="text-sm font-bold text-slate-800">座位图</h3>
+                          <div class="mt-3 grid grid-cols-4 gap-2">
+                            <button class="seat-map-seat h-10 rounded-[10px] bg-emerald-400 text-[10px] font-semibold text-white" type="button">空闲</button>
+                            <button class="seat-map-seat h-10 rounded-[10px] bg-slate-300 text-[10px] font-semibold text-slate-600" type="button">已约</button>
+                            <button class="seat-map-seat h-10 rounded-[10px] bg-brand text-[10px] font-semibold text-white" type="button">已选</button>
+                            <button class="seat-map-seat h-10 rounded-[10px] bg-slate-300 text-[10px] font-semibold text-slate-600" type="button">已约</button>
+                            <button class="seat-map-seat h-10 rounded-[10px] bg-emerald-400 text-[10px] font-semibold text-white" type="button">空闲</button>
+                            <button class="seat-map-seat h-10 rounded-[10px] bg-emerald-400 text-[10px] font-semibold text-white" type="button">空闲</button>
+                            <button class="seat-map-seat h-10 rounded-[10px] bg-slate-300 text-[10px] font-semibold text-slate-600" type="button">已约</button>
+                            <button class="seat-map-seat h-10 rounded-[10px] bg-emerald-400 text-[10px] font-semibold text-white" type="button">空闲</button>
+                          </div>
+                          <div class="mt-3 rounded-[14px] bg-orange-50 p-2 text-[10px] leading-5 text-orange-700">
+                            当前时段已约满，您可加入候补队列，系统将为您分配临近空位。
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold text-slate-800">加入候补队列</span>
+                            <button class="rounded-full bg-orange-500 px-3 py-2 text-[10px] font-semibold text-white" data-opt-go="optimized_queue" type="button">候补</button>
+                          </div>
+                          <div class="mt-2 text-[11px] text-slate-500">候补截止时间：预约开始前 20 分钟</div>
+                          <div class="mt-3 space-y-2 text-[11px] text-slate-600">
+                            <p>• 近地铁场馆推荐：南山图书馆总馆</p>
+                            <p>• 近景区推荐：南山书房·海德园</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="absolute inset-x-4 bottom-4 rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                        <div class="mb-2 flex items-center justify-between text-[11px] text-slate-500">
+                          <span>已选座位</span>
+                          <span class="font-semibold text-slate-800">沉浸自习区 12号</span>
+                        </div>
+                        <div class="mb-2 flex items-center justify-between text-[11px] text-slate-500">
+                          <span>时长</span>
+                          <span class="font-semibold text-slate-800">4小时</span>
+                        </div>
+                        <div class="mb-3 flex items-center justify-between text-[11px] text-slate-500">
+                          <span>预计费用</span>
+                          <span class="font-semibold text-slate-800">免费</span>
+                        </div>
+                        <button class="w-full rounded-full bg-brand py-3 text-sm font-semibold text-white" data-opt-go="optimized_confirm" type="button">确认预约</button>
+                      </div>
+                    </section>
+
+                    <section class="optimized-screen" data-opt-page="optimized_confirm">
+                      <div class="subtle-scroll h-full px-4 py-4 pb-28">
+                        <div class="rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <h3 class="text-lg font-bold text-slate-800">预约确认</h3>
+                          <div class="mt-4 space-y-3 text-sm text-slate-600">
+                            <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
+                              <span>场馆</span>
+                              <span class="font-semibold text-slate-800">丽雅苑</span>
+                            </div>
+                            <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
+                              <span>座位</span>
+                              <span class="font-semibold text-slate-800">沉浸自习区12号</span>
+                            </div>
+                            <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
+                              <span>时间</span>
+                              <span class="font-semibold text-slate-800">2026-09-16 10:00-14:00</span>
+                            </div>
+                            <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
+                              <span>时长</span>
+                              <span class="font-semibold text-slate-800">4小时</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-3 flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800">签到提醒设置</h3>
+                            <span class="text-[10px] text-brand">默认开启</span>
+                          </div>
+                          <div class="space-y-2 text-[11px] text-slate-600">
+                            <button class="w-full rounded-[12px] bg-slate-50 px-3 py-2 text-left" type="button">提前 15 分钟</button>
+                            <button class="w-full rounded-[12px] bg-slate-50 px-3 py-2 text-left" type="button">提前 30 分钟</button>
+                            <button class="w-full rounded-[12px] bg-brand/10 px-3 py-2 text-left text-brand" type="button">提前 60 分钟</button>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <p class="text-sm font-bold text-slate-800">取消规则</p>
+                          <p class="mt-2 text-[11px] leading-6 text-slate-600">
+                            提前 <span class="font-semibold text-brand">20分钟取消</span> 不计违约，支持一键改签。
+                          </p>
+                        </div>
+
+                        <label class="mt-4 flex items-start gap-2 rounded-[18px] bg-white p-3 text-[11px] leading-5 text-slate-600 shadow-sm ring-1 ring-slate-200/80">
+                          <input type="checkbox" class="mt-1 h-4 w-4 accent-brand" checked />
+                          <span>我已阅读并同意《南山书房服务使用协议》</span>
+                        </label>
+                      </div>
+
+                      <div class="absolute inset-x-4 bottom-4">
+                        <button class="w-full rounded-full bg-brand py-3 text-sm font-semibold text-white" data-opt-submit="optimized_submit" type="button">提交预约</button>
+                      </div>
+                    </section>
+
+                    <section class="optimized-screen" data-opt-page="optimized_booking">
+                      <div class="subtle-scroll h-full px-4 py-4 pb-24">
+                        <div class="rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-800">我的预约</h3>
+                            <button class="text-[10px] font-semibold text-brand" type="button">消息提醒设置</button>
+                          </div>
+                          <div class="mt-3 flex rounded-full bg-slate-100 p-1 text-[10px] font-semibold">
+                            <button class="flex-1 rounded-full bg-brand px-2 py-2 text-white" data-booking-mode="待使用" type="button">待使用</button>
+                            <button class="flex-1 rounded-full px-2 py-2 text-slate-600" data-booking-mode="已完成" type="button">已完成</button>
+                            <button class="flex-1 rounded-full px-2 py-2 text-slate-600" data-booking-mode="已取消" type="button">已取消</button>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 space-y-3">
+                          <div class="rounded-[20px] bg-orange-50 p-3 shadow-sm ring-1 ring-orange-100">
+                            <div class="flex items-center justify-between">
+                              <p class="text-sm font-semibold text-slate-800">丽雅苑 · 沉浸自习区12号</p>
+                              <span class="rounded-full bg-orange-100 px-2 py-1 text-[10px] font-semibold text-orange-600">临近入场</span>
+                            </div>
+                            <p class="mt-2 text-[11px] text-slate-600">时间：2026-09-16 10:00-14:00</p>
+                            <p class="mt-1 text-[11px] text-slate-600">入场二维码：可用</p>
+                            <p class="mt-2 text-[10px] text-orange-600">距离入场还有 2 小时</p>
+                            <div class="mt-3 flex gap-2">
+                              <button class="flex-1 rounded-full bg-white px-3 py-2 text-[10px] font-semibold text-slate-700" type="button">取消</button>
+                              <button class="flex-1 rounded-full bg-white px-3 py-2 text-[10px] font-semibold text-slate-700" type="button">改签</button>
+                              <button class="flex-1 rounded-full bg-brand px-3 py-2 text-[10px] font-semibold text-white" type="button">签到</button>
+                            </div>
+                          </div>
+
+                          <div class="rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                            <div class="flex items-center justify-between">
+                              <p class="text-sm font-semibold text-slate-800">南山图书馆总馆 · 自习区B</p>
+                              <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600">已完成</span>
+                            </div>
+                            <p class="mt-2 text-[11px] text-slate-600">时间：2026-09-12 09:00-12:00</p>
+                            <div class="mt-3 flex gap-2">
+                              <button class="flex-1 rounded-full bg-slate-100 px-3 py-2 text-[10px] font-semibold text-slate-700" type="button">查看详情</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="optimized-screen" data-opt-page="optimized_profile">
+                      <div class="subtle-scroll h-full px-4 py-4 pb-24">
+                        <div class="rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center gap-3">
+                            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand to-[#6b9cff] text-lg font-bold text-white">L</div>
+                            <div>
+                              <p class="text-base font-bold text-slate-800">李小明</p>
+                              <p class="text-xs text-slate-500">信用分 94 · 读者证已绑定</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="mb-2 flex items-center justify-between">
+                            <p class="text-sm font-bold text-slate-800">登录方式</p>
+                            <span class="text-[10px] text-slate-400">多模式</span>
+                          </div>
+                          <div class="grid grid-cols-3 gap-2 text-[10px]">
+                            <button class="rounded-full bg-brand px-2 py-2 font-semibold text-white" type="button">人脸登录</button>
+                            <button class="rounded-full bg-slate-100 px-2 py-2 font-semibold text-slate-600" type="button">身份证</button>
+                            <button class="rounded-full bg-slate-100 px-2 py-2 font-semibold text-slate-600" type="button">读者证</button>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <div class="flex items-center justify-between">
+                            <p class="text-sm font-bold text-slate-800">老年简易模式</p>
+                            <button id="seniorModeToggle" class="relative inline-flex h-7 w-12 items-center rounded-full bg-brand transition-colors duration-200" type="button" aria-pressed="false" aria-label="切换老年模式">
+                              <span class="h-5 w-5 rounded-full bg-white shadow-md transition duration-200" style="transform: translateX(24px);"></span>
+                            </button>
+                          </div>
+                          <p class="mt-2 text-[10px] text-slate-500">开启后全局字体放大 30%，显示更清晰</p>
+                        </div>
+
+                        <div class="mt-4 space-y-2 rounded-[20px] bg-white p-2 shadow-sm ring-1 ring-slate-200/80">
+                          <button class="flex w-full items-center justify-between rounded-[14px] px-3 py-3 text-left text-sm text-slate-700" data-opt-go="optimized_booking" type="button"><span>我的预约</span><span>›</span></button>
+                          <button class="flex w-full items-center justify-between rounded-[14px] px-3 py-3 text-left text-sm text-slate-700" type="button"><span>我的收藏</span><span>›</span></button>
+                          <button class="flex w-full items-center justify-between rounded-[14px] px-3 py-3 text-left text-sm text-slate-700" type="button"><span>违约记录</span><span>›</span></button>
+                          <button class="flex w-full items-center justify-between rounded-[14px] px-3 py-3 text-left text-sm text-slate-700" type="button"><span>帮助中心</span><span>›</span></button>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+                          <h3 class="text-sm font-bold text-slate-800">预约偏好设置</h3>
+                          <div class="mt-2 space-y-2 text-[11px] text-slate-600">
+                            <p>• 常用场馆：丽雅苑 / 南山图书馆总馆</p>
+                            <p>• 常用时段：下午 14:00-18:00</p>
+                            <p>• 自动续约：已开启</p>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="optimized-screen" data-opt-page="optimized_queue">
+                      <div class="subtle-scroll h-full px-4 py-4 pb-24">
+                        <div class="rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <h3 class="text-lg font-bold text-slate-800">候补排队</h3>
+                          <div class="mt-3 rounded-[16px] bg-brandSoft p-3">
+                            <p class="text-[10px] text-brand">当前排位</p>
+                            <p class="mt-1 text-2xl font-bold text-brand">第 3 位</p>
+                            <p class="mt-1 text-[11px] text-slate-600">预计等待时间：约 25 分钟</p>
+                          </div>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <h3 class="text-sm font-bold text-slate-800">候补规则</h3>
+                          <ul class="mt-2 space-y-2 text-[11px] leading-6 text-slate-600">
+                            <li>• 若有空位优先分配至最近场馆</li>
+                            <li>• 预约开始前 20 分钟取消不计违约</li>
+                            <li>• 取消候补后可继续切换其他场馆</li>
+                          </ul>
+                        </div>
+
+                        <div class="mt-4 rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
+                          <p class="text-sm font-bold text-slate-800">附近推荐场馆</p>
+                          <div class="mt-3 space-y-2 text-[11px] text-slate-600">
+                            <div class="flex items-center justify-between rounded-[12px] bg-slate-50 p-2">
+                              <span>南山图书馆总馆</span>
+                              <button class="rounded-full bg-brand px-2 py-1 text-[10px] font-semibold text-white" type="button">快速预约</button>
+                            </div>
+                            <div class="flex items-center justify-between rounded-[12px] bg-slate-50 p-2">
+                              <span>南山书房·海德园</span>
+                              <button class="rounded-full bg-brand px-2 py-1 text-[10px] font-semibold text-white" type="button">快速预约</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="absolute inset-x-4 bottom-4">
+                        <button class="w-full rounded-full bg-slate-200 py-3 text-sm font-semibold text-slate-700" type="button">取消候补</button>
+                      </div>
+                    </section>
+                  </div>
+
+                  <nav class="tabbar flex items-center justify-around px-2">
+                    <button class="tab-item active" data-opt-nav="optimized_home" type="button">
+                      <span class="icon-wrap"><svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true"><path d="M12 3.3 3.7 10.8A1.1 1.1 0 0 0 4.1 12.8H5v7.2a1 1 0 0 0 1 1h3.2a1 1 0 0 0 1-1v-4.1h3.6v4.1a1 1 0 0 0 1 1H18a1 1 0 0 0 1-1v-7.2h.9a1.1 1.1 0 0 0 .4-2l-8.3-7.5Z"></path></svg></span>
+                      <span>首页</span>
+                    </button>
+                    <button class="tab-item" data-opt-nav="optimized_booking" type="button">
+                      <span class="icon-wrap"><svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true"><path d="M7 2.75h1.2v1.2H15V2.75H16.8v1.2h1.8A2.45 2.45 0 0 1 21 6.4v12.15A2.45 2.45 0 0 1 18.6 21H5.4A2.45 2.45 0 0 1 3 18.55V6.4a2.45 2.45 0 0 1 2.4-2.45h1.8V2.75Zm11.4 7.4H5.6v8.4c0 .45.35.8.8.8h11.2a.8.8 0 0 0 .8-.8v-8.4Zm-8.8 2.1a1 1 0 0 1 1-1h4.8a1 1 0 0 1 0 2H10.6a1 1 0 0 1-1-1Z"></path></svg></span>
+                      <span>预约</span>
+                    </button>
+                    <button class="tab-item" data-opt-nav="optimized_profile" type="button">
+                      <span class="icon-wrap"><svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true"><path d="M12 12.25A3.75 3.75 0 1 0 12 4.75a3.75 3.75 0 0 0 0 7.5Zm-6.5 7.1A6.5 6.5 0 0 1 18.5 19.35v.5h-13v-.5Z"></path></svg></span>
+                      <span>我的</span>
+                    </button>
+                  </nav>
+                </div>
+
+                <div class="compare-mode" data-mode="compare">
+                  <div class="compare-phone compare-phone-current">
+                    <div class="compare-status-bar">
+                      <span>9:41</span>
+                      <div class="compare-status-icons">
+                        <div class="compare-signal"><span></span><span></span><span></span><span></span></div>
+                        <div class="compare-battery"></div>
+                      </div>
+                    </div>
+
+                    <div class="compare-phone-header">
+                      <span>现状</span>
+                      <span id="compareCurrentTitle">南山书房</span>
+                    </div>
+
+                    <div class="compare-phone-body">
+                    <div class="compare-screen active" data-compare-page="home">
+                      <div class="compare-card">
+                        <p class="text-[10px] tracking-[0.2em] text-slate-400">NANSHAN STUDY</p>
+                        <h3 class="mt-2 text-xl font-bold text-slate-800">南山书房</h3>
+                        <div class="compare-mini-grid">
+                          <div class="compare-metric">
+                            <p class="text-[10px] text-slate-500">可预约</p>
+                            <p class="mt-1 text-lg font-bold text-slate-800">12</p>
+                          </div>
+                          <div class="compare-metric">
+                            <p class="text-[10px] text-slate-500">空位</p>
+                            <p class="mt-1 text-lg font-bold text-slate-800">48</p>
+                          </div>
+                        </div>
+                        <button class="compare-cta" data-compare-go="venue" type="button">查看场馆</button>
+                      </div>
+
+                      <div class="compare-card mt-3">
+                        <p class="text-sm font-bold text-slate-800">服务入口</p>
+                        <div class="compare-mini-grid">
+                          <button class="rounded-[12px] bg-slate-50 p-3 text-left" data-compare-go="home" type="button">
+                            <div class="mb-2 h-8 w-8 rounded-xl bg-brandSoft text-center text-sm leading-8 text-brand">预</div>
+                            <p class="text-xs font-semibold text-slate-700">南图预借</p>
+                          </button>
+                          <button class="rounded-[12px] bg-slate-50 p-3 text-left" data-compare-go="booking" type="button">
+                            <div class="mb-2 h-8 w-8 rounded-xl bg-brandSoft text-center text-sm leading-8 text-brand">约</div>
+                            <p class="text-xs font-semibold text-slate-700">我的预约</p>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="compare-screen" data-compare-page="venue">
+                      <div class="compare-card">
+                        <p class="text-[10px] tracking-[0.2em] text-slate-400">Venue</p>
+                        <h3 class="mt-2 text-xl font-bold text-slate-800">丽雅苑</h3>
+                        <p class="mt-2 text-[11px] text-slate-500">开放中 · 距离 1.4km</p>
+                        <div class="compare-mini-grid">
+                          <div class="compare-metric">
+                            <p class="text-[10px] text-slate-500">剩余</p>
+                            <p class="mt-1 text-lg font-bold text-slate-800">32</p>
+                          </div>
+                          <div class="compare-metric">
+                            <p class="text-[10px] text-slate-500">上座率</p>
+                            <p class="mt-1 text-lg font-bold text-orange-500">82%</p>
+                          </div>
+                        </div>
+                        <button class="compare-cta" data-compare-go="seat" type="button">立即预约</button>
+                      </div>
+                    </div>
+
+                    <div class="compare-screen" data-compare-page="seat">
+                      <div class="compare-card">
+                        <p class="text-sm font-bold text-slate-800">时段选择</p>
+                        <div class="mt-3 space-y-2">
+                          <button class="w-full rounded-[10px] bg-slate-100 px-2 py-2 text-left text-[11px] font-semibold text-slate-700" type="button">11:00-12:00</button>
+                          <button class="w-full rounded-[10px] bg-slate-100 px-2 py-2 text-left text-[11px] font-semibold text-slate-700" type="button">12:00-13:00</button>
+                          <button class="w-full rounded-[10px] bg-slate-100 px-2 py-2 text-left text-[11px] font-semibold text-slate-700" type="button">13:00-14:00（已满）</button>
+                        </div>
+                        <button class="compare-cta" data-compare-go="confirm" type="button">确认选择</button>
+                      </div>
+                    </div>
+
+                    <div class="compare-screen" data-compare-page="confirm">
+                      <div class="compare-card">
+                        <p class="text-sm font-bold text-slate-800">预约确认</p>
+                        <div class="mt-3 space-y-2 text-[11px] text-slate-600">
+                          <p>场馆：丽雅苑</p>
+                          <p>时间：12:00-15:00</p>
+                          <p>座位：沉浸阅读1区10号桌</p>
+                        </div>
+                        <button class="compare-cta" data-compare-go="booking" type="button">提交预约</button>
+                      </div>
+                    </div>
+
+                    <div class="compare-screen" data-compare-page="booking">
+                      <div class="compare-card">
+                        <p class="text-sm font-bold text-slate-800">我的预约</p>
+                        <div class="mt-3 rounded-[12px] bg-orange-50 p-3 text-[11px] text-orange-700">
+                          距离入场还有 2 小时
+                        </div>
+                        <button class="compare-cta secondary" data-compare-go="profile" type="button">查看详情</button>
+                      </div>
+                    </div>
+
+                    <div class="compare-screen" data-compare-page="profile">
+                      <div class="compare-card">
+                        <p class="text-sm font-bold text-slate-800">个人中心</p>
+                        <div class="mt-3 space-y-2 text-[11px] text-slate-600">
+                          <p>读者证：已绑定</p>
+                          <p>老年模式：未开启</p>
+                          <p>违约记录：1 次</p>
+                        </div>
+                        <button class="compare-cta warning" data-compare-go="home" type="button">返回首页</button>
+                      </div>
+                    </div>
+
+                    <div class="compare-insight current">
+                      <p class="text-[11px] font-bold text-amber-600">现状痛点 <button class="compare-insight-toggle" data-insight-toggle type="button" aria-expanded="true">收起</button></p>
+                      <ul id="compareCurrentInsight"></ul>
+                    </div>
+                    </div>
+
+                    <nav class="tabbar" aria-label="现状版导航">
+                      <button class="tab-item active" data-compare-tab="home" type="button">
+                        <span class="icon-wrap">⌂</span>
+                        <span>首页</span>
+                      </button>
+                      <button class="tab-item" data-compare-tab="booking" type="button">
+                        <span class="icon-wrap">▣</span>
+                        <span>预约</span>
+                      </button>
+                      <button class="tab-item" data-compare-tab="profile" type="button">
+                        <span class="icon-wrap">●</span>
+                        <span>我的</span>
+                      </button>
+                    </nav>
+                  </div>
+
+                  <div class="compare-phone optimized">
+                    <div class="compare-status-bar">
+                      <span>9:41</span>
+                      <div class="compare-status-icons">
+                        <div class="compare-signal"><span></span><span></span><span></span><span></span></div>
+                        <div class="compare-battery"></div>
+                      </div>
+                    </div>
+
+                    <div class="compare-phone-header">
+                      <span>优化后</span>
+                      <span id="compareOptimizedTitle">南山书房</span>
+                    </div>
+
+                    <div class="compare-phone-body">
+                    <div class="compare-screen active" data-compare-page="home">
+                      <div class="compare-card">
+                        <p class="text-[10px] tracking-[0.2em] text-brand">OPTIMIZED</p>
+                        <h3 class="mt-2 text-xl font-bold text-slate-800">全域场馆统一</h3>
+                        <div class="compare-mini-grid">
+                          <div class="compare-metric">
+                            <p class="text-[10px] text-slate-500">可预约</p>
+                            <p class="mt-1 text-lg font-bold text-slate-800">14</p>
+                          </div>
+                          <div class="compare-metric">
+                            <p class="text-[10px] text-slate-500">剩余</p>
+                            <p class="mt-1 text-lg font-bold text-slate-800">862</p>
+                          </div>
+                        </div>
+                        <button class="compare-cta" data-compare-go="venue" type="button">立即预约</button>
+                      </div>
+
+                      <div class="compare-card mt-3">
+                        <p class="text-sm font-bold text-slate-800">场馆列表</p>
+                        <div class="mt-2 space-y-2 text-[11px] text-slate-600">
+                          <p>• 南山图书馆总馆 · 90%+ · 0.8km</p>
+                          <p>• 南山书房·丽雅苑 · 68% · 1.4km</p>
+                          <p>• 18:00-20:00 高峰提醒已开启</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="compare-screen" data-compare-page="venue">
+                      <div class="compare-card">
+                        <p class="text-[10px] tracking-[0.2em] text-brand">Venue</p>
+                        <h3 class="mt-2 text-xl font-bold text-slate-800">丽雅苑</h3>
+                        <p class="mt-2 text-[11px] text-slate-500">实景 · 距离 1.4km · 收藏</p>
+                        <div class="compare-mini-grid">
+                          <div class="compare-metric">
+                            <p class="text-[10px] text-slate-500">剩余</p>
+                            <p class="mt-1 text-lg font-bold text-slate-800">64</p>
+                          </div>
+                          <div class="compare-metric">
+                            <p class="text-[10px] text-slate-500">上座率</p>
+                            <p class="mt-1 text-lg font-bold text-red-500">86%</p>
+                          </div>
+                        </div>
+                        <button class="compare-cta" data-compare-go="seat" type="button">立即预约</button>
+                      </div>
+                    </div>
+
+                    <div class="compare-screen" data-compare-page="seat">
+                      <div class="compare-card">
+                        <p class="text-sm font-bold text-slate-800">自定义时段</p>
+                        <div class="mt-3 space-y-2 text-[11px] text-slate-600">
+                          <p>起始：10:00</p>
+                          <p>结束：17:00</p>
+                          <p>推荐：全天时段，适配备考场景</p>
+                        </div>
+                        <button class="compare-cta" data-compare-go="confirm" type="button">确认预约</button>
+                      </div>
+                    </div>
+
+                    <div class="compare-screen" data-compare-page="confirm">
+                      <div class="compare-card">
+                        <p class="text-sm font-bold text-slate-800">预约确认</p>
+                        <div class="mt-3 space-y-2 text-[11px] text-slate-600">
+                          <p>提醒：提前 60 分钟</p>
+                          <p>取消规则：提前 20 分钟不计违约</p>
+                          <p>协议：已勾选</p>
+                        </div>
+                        <button class="compare-cta" data-compare-go="booking" type="button">提交预约</button>
+                      </div>
+                    </div>
+
+                    <div class="compare-screen" data-compare-page="booking">
+                      <div class="compare-card">
+                        <p class="text-sm font-bold text-slate-800">我的预约</p>
+                        <div class="mt-3 rounded-[12px] bg-orange-50 p-3 text-[11px] text-orange-700">
+                          倒计时提醒：距离入场还有 2 小时
+                        </div>
+                        <button class="compare-cta" data-compare-go="profile" type="button">查看详情</button>
+                      </div>
+                    </div>
+
+                    <div class="compare-screen" data-compare-page="profile">
+                      <div class="compare-card">
+                        <p class="text-sm font-bold text-slate-800">老年模式</p>
+                        <div class="mt-3 space-y-2 text-[11px] text-slate-600">
+                          <p>• 多登录：人脸 / 身份证 / 读者证</p>
+                          <p>• 字体放大 30%</p>
+                          <p>• 核心入口简化</p>
+                        </div>
+                        <button class="compare-cta" data-compare-go="home" type="button">返回首页</button>
+                      </div>
+                    </div>
+
+                    <div class="compare-insight optimized">
+                      <p class="text-[11px] font-bold text-brand">本页优化点 <button class="compare-insight-toggle" data-insight-toggle type="button" aria-expanded="true">收起</button></p>
+                      <ul id="compareInsightList"></ul>
+                    </div>
+                    </div>
+
+                    <nav class="tabbar" aria-label="优化版导航">
+                      <button class="tab-item active" data-compare-tab="home" type="button">
+                        <span class="icon-wrap">⌂</span>
+                        <span>首页</span>
+                      </button>
+                      <button class="tab-item" data-compare-tab="booking" type="button">
+                        <span class="icon-wrap">▣</span>
+                        <span>预约</span>
+                      </button>
+                      <button class="tab-item" data-compare-tab="profile" type="button">
+                        <span class="icon-wrap">●</span>
+                        <span>我的</span>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="rounded-[30px] border border-slate-200/80 bg-white p-5 shadow-sm">
+            <div class="mb-4">
+              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Product Doc</p>
+              <h2 class="mt-1 text-xl font-bold text-slate-800">优化方案说明</h2>
+            </div>
+            <div class="mb-5 flex flex-wrap gap-2 rounded-2xl bg-slate-100 p-2">
+              <button class="doc-tab active flex-1 rounded-xl px-3 py-2 text-center text-sm font-semibold text-brand transition-all duration-200" data-doc-tab="background" type="button">项目背景</button>
+              <button class="doc-tab flex-1 rounded-xl px-3 py-2 text-center text-sm font-semibold text-slate-500 transition-all duration-200" data-doc-tab="pain" type="button">核心痛点</button>
+              <button class="doc-tab flex-1 rounded-xl px-3 py-2 text-center text-sm font-semibold text-slate-500 transition-all duration-200" data-doc-tab="data" type="button">数据支撑</button>
+              <button class="doc-tab flex-1 rounded-xl px-3 py-2 text-center text-sm font-semibold text-slate-500 transition-all duration-200" data-doc-tab="solution" type="button">优化方案</button>
+            </div>
+
+            <div class="doc-panel active" data-panel="background">
+              <div class="space-y-3">
+                <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+                  <p class="mb-2 text-sm font-semibold text-slate-800">现状</p>
+                  <p class="text-sm leading-6 text-slate-600">南山区现有南山图书馆公众号、南山书房小程序两套独立系统，数据不互通。</p>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="rounded-2xl bg-brandSoft p-3"><p class="text-[11px] text-brand">全年预约</p><p class="mt-1 text-xl font-bold text-slate-800">86万次</p><p class="text-[10px] text-slate-500">2024年</p></div>
+                  <div class="rounded-2xl bg-orange-50 p-3"><p class="text-[11px] text-orange-600">预约核销率</p><p class="mt-1 text-xl font-bold text-slate-800">41%</p><p class="text-[10px] text-slate-500">2024年</p></div>
+                  <div class="rounded-2xl bg-red-50 p-3"><p class="text-[11px] text-red-600">爽约流失率</p><p class="mt-1 text-xl font-bold text-red-600">39.53%</p><p class="text-[10px] text-slate-500">高于行业基准14.53个百分点</p></div>
+                  <div class="rounded-2xl bg-emerald-50 p-3"><p class="text-[11px] text-emerald-600">目标核销率</p><p class="mt-1 text-xl font-bold text-slate-800">60%+</p><p class="text-[10px] text-slate-500">项目目标</p></div>
+                </div>
+                <div class="rounded-[24px] border border-slate-200 bg-white p-4">
+                  <p class="mb-2 text-sm font-semibold text-slate-800">项目目标</p>
+                  <ul class="space-y-2 text-sm leading-6 text-slate-600">
+                    <li>• 打通全域场馆资源，实现一站式预约</li><li>• 预约核销转化率提升至60%以上</li><li>• 用户预约操作步骤减少50%</li><li>• 违约率下降至5%以内</li>
+                  </ul>
+                </div>
+                <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600"><span class="font-semibold text-slate-800">项目范围：</span>C端预约小程序优化 + B端数据运营后台</div>
+              </div>
+            </div>
+
+            <div class="doc-panel" data-panel="pain">
+              <div class="space-y-2">
+                <div class="rounded-2xl border-l-4 border-red-500 bg-red-50 p-3"><div class="flex items-center gap-2"><span class="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">P0</span><p class="text-sm font-bold text-slate-800">双平台数据割裂</p></div><p class="mt-2 text-xs leading-5 text-slate-600">信息不同步，用户需反复切换查询。影响人群：所有预约用户。</p></div>
+                <div class="rounded-2xl border-l-4 border-orange-500 bg-orange-50 p-3"><div class="flex items-center gap-2"><span class="rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-bold text-white">P1</span><p class="text-sm font-bold text-slate-800">候补分流与提醒缺失</p></div><p class="mt-2 text-xs leading-5 text-slate-600">约满后无替代方案，全链路提醒缺失，违约风险高。影响人群：预约用户、运营人员。</p></div>
+                <div class="rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-3"><div class="flex items-center gap-2"><span class="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-white">P2</span><p class="text-sm font-bold text-slate-800">预约机制僵化</p></div><p class="mt-2 text-xs leading-5 text-slate-600">单次最长3小时，仅支持整点预约。影响人群：学生、备考用户、长时段使用者。</p></div>
+                <div class="rounded-2xl border-l-4 border-slate-400 bg-slate-100 p-3"><div class="flex items-center gap-2"><span class="rounded-full bg-slate-500 px-2 py-0.5 text-[10px] font-bold text-white">P3</span><p class="text-sm font-bold text-slate-800">登录方式门槛高</p></div><p class="mt-2 text-xs leading-5 text-slate-600">强制人脸核验，老年/青少年无简易登录通道。影响人群：老年用户、青少年用户。</p></div>
+                <div class="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-4"><p class="text-sm font-semibold text-slate-800">真实用户原声</p><p class="mt-2 text-xs leading-5 text-slate-500">当前工作区未提供小红书、抖音、大众点评的截图或原文，暂不编造引语。补充真实截图后可在此按来源展示。</p><div class="mt-3 grid grid-cols-3 gap-2 text-center text-[10px] text-slate-400"><span class="rounded-xl bg-white p-2 ring-1 ring-slate-200">小红书<br>待核对原文</span><span class="rounded-xl bg-white p-2 ring-1 ring-slate-200">抖音<br>待核对原文</span><span class="rounded-xl bg-white p-2 ring-1 ring-slate-200">大众点评<br>待核对原文</span></div></div>
+              </div>
+            </div>
+
+            <div class="doc-panel" data-panel="data">
+              <div class="space-y-3">
+                <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-4"><p class="mb-3 text-sm font-semibold text-slate-800">预约转化漏斗</p><div class="space-y-2 text-xs"><div class="flex items-center justify-between"><span>曝光 → 访问入口</span><strong>65%</strong></div><div class="flex items-center justify-between"><span>发起预约</span><strong>55%</strong></div><div class="flex items-center justify-between"><span>提交表单</span><strong>88%</strong></div><div class="flex items-center justify-between"><span>预约成功</span><strong>94%</strong></div><div class="flex items-center justify-between text-red-600"><span>到馆核销</span><strong>60%</strong></div><div class="flex items-center justify-between"><span>完成服务</span><strong>92%</strong></div></div></div>
+                <div class="grid grid-cols-3 gap-2"><div class="rounded-2xl bg-brandSoft p-3 text-center"><p class="text-lg font-bold text-brand">52%</p><p class="text-[10px] text-slate-500">学生</p></div><div class="rounded-2xl bg-orange-50 p-3 text-center"><p class="text-lg font-bold text-orange-600">36%</p><p class="text-[10px] text-slate-500">上班族</p></div><div class="rounded-2xl bg-emerald-50 p-3 text-center"><p class="text-lg font-bold text-emerald-600">12%</p><p class="text-[10px] text-slate-500">老年</p></div></div>
+                <div class="rounded-2xl border border-red-200 bg-red-50 p-4"><p class="text-sm font-bold text-red-700">核心流失节点</p><p class="mt-2 text-sm leading-6 text-red-700">预约成功 → 到馆核销，流失率 <strong>39.53%</strong>，高于行业基准 <strong>14.53个百分点</strong>。</p></div>
+                <div class="rounded-2xl border border-slate-200 bg-white p-4"><p class="text-sm font-semibold text-slate-800">核心结论</p><p class="mt-2 text-sm leading-6 text-slate-600">线上流程无明显缺陷，核心问题在履约提醒和预约机制。</p></div>
+              </div>
+            </div>
+
+            <div class="doc-panel" data-panel="solution">
+              <div class="space-y-3">
+                <div class="rounded-[24px] bg-brandSoft p-4"><p class="text-xs font-semibold text-brand">产品架构</p><p class="mt-2 text-base font-bold text-slate-800">C端一体化预约 + B端数据运营</p></div>
+                <div class="rounded-2xl border border-red-200 bg-red-50 p-4"><div class="flex items-center gap-2"><span class="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">P0 MVP</span><p class="text-sm font-bold text-slate-800">优先落地</p></div><p class="mt-2 text-sm leading-6 text-slate-600">场馆整合、实时上座、全链路提醒、候补分流</p></div>
+                <div class="rounded-2xl border border-orange-200 bg-orange-50 p-4"><div class="flex items-center gap-2"><span class="rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-bold text-white">P1</span><p class="text-sm font-bold text-slate-800">迭代功能</p></div><p class="mt-2 text-sm leading-6 text-slate-600">自定义时段、长时段预约</p></div>
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4"><div class="flex items-center gap-2"><span class="rounded-full bg-slate-500 px-2 py-0.5 text-[10px] font-bold text-white">P2</span><p class="text-sm font-bold text-slate-800">优化功能</p></div><p class="mt-2 text-sm leading-6 text-slate-600">老年模式、多登录方式</p></div>
+                <div class="grid grid-cols-3 gap-2"><div class="rounded-2xl bg-emerald-50 p-3 text-center"><p class="text-lg font-bold text-emerald-600">+19%</p><p class="text-[10px] text-slate-500">核销率</p></div><div class="rounded-2xl bg-blue-50 p-3 text-center"><p class="text-lg font-bold text-brand">-30%</p><p class="text-[10px] text-slate-500">违约率</p></div><div class="rounded-2xl bg-orange-50 p-3 text-center"><p class="text-lg font-bold text-orange-600">-50%</p><p class="text-[10px] text-slate-500">操作步骤</p></div></div>
+              </div>
+            </div>
+
+            <div class="mt-5 rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-4">
+              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Appendix</p>
+              <div class="mt-3 h-28 rounded-2xl bg-white ring-1 ring-slate-200/80"></div>
+            </div>
+          </aside>
+        </main>
+      </div>
+    </div>
+
+    <div id="cancelModal" class="modal-backdrop" aria-modal="true" role="dialog">
+      <div class="modal-card">
+        <p class="text-base font-bold text-slate-800">取消预约</p>
+        <p class="mt-3 text-sm leading-6 text-slate-500">确认取消此次预约？取消后订单将移入已取消列表。</p>
+        <div class="mt-5 flex gap-3">
+          <button class="flex-1 rounded-full bg-slate-100 px-3 py-2.5 text-sm font-semibold text-slate-700" type="button" data-modal-close="true">取消</button>
+          <button class="flex-1 rounded-full bg-brand px-3 py-2.5 text-sm font-semibold text-white" type="button" data-modal-confirm="true">确认</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const modeButtons = document.querySelectorAll('.mode-btn');
+      const modeBadge = document.getElementById('modeBadge');
+      const modeContents = document.querySelectorAll('.mode-content');
+      const optimizedButtons = document.querySelectorAll('.tab-item');
+      const optimizedScreens = document.querySelectorAll('.screen');
+      const compareModes = document.querySelectorAll('.compare-mode');
+      const comparePageMap = {
+        home: {
+          title: '南山书房',
+          currentInsights: ['信息入口分散 → 用户需重复点击才能完成预约', '状态反馈弱 → 预约与取消结果不够直观', '场馆信息不统一 → 用户难以比较与决策'],
+          insights: ['双系统整合 → 解决信息不同步，操作步骤减少50%', '共享场馆信息 → 降低用户判断成本', '高峰时段预警 → 提前规避拥堵']
+        },
+        venue: {
+          title: '丽雅苑',
+          currentInsights: ['场馆信息过度分散 → 需多次切换页面才知道可预约情况', '实时空位不透明 → 用户难以判断预约成功率', '区位信息弱 → 选择成本高'],
+          insights: ['实景+上座率 → 降低信息差，提升预约信心', '分区热力图 → 让用户快速判断座位状态', '时段筛选 → 简化决策路径']
+        },
+        seat: {
+          title: '选座预约',
+          currentInsights: ['时间段粒度过粗 → 不适配长时段与备考需求', '缺少候补与近场推荐 → 流失高', '选座过程缺乏提示 → 容易误判空位状态'],
+          insights: ['自定义时段+长时段 → 解决3小时限制，适配备考场景', '最小15分钟粒度 → 提升匹配准确度', '候补入口可见 → 降低空座流失']
+        },
+        confirm: {
+          title: '预约确认',
+          currentInsights: ['提醒机制弱 → 用户容易错过签到与取消窗口', '规则隐藏在深层 → 预约后容易产生误解', '服务协议不清晰 → 降低信任感'],
+          insights: ['提醒设置 → 降低错过签到风险', '违约规则前置 → 避免误解和投诉', '协议明确 → 提升用户信任']
+        },
+        booking: {
+          title: '我的预约',
+          currentInsights: ['状态展示不清晰 → 用户难以判断距入场时间', '取消/改签入口不直观 → 操作路径长', '违约风险缺乏预警 → 容易被动违约'],
+          insights: ['倒计时提醒 → 解决遗忘违约，预计降低违约率30%', '状态分层 → 提高到场效率', '改签/取消入口更清晰 → 降低操作摩擦']
+        },
+        profile: {
+          title: '个人中心',
+          currentInsights: ['老年用户门槛高 → 复杂入口与字体不友好', '账户信息和会员功能分散 → 体验割裂', '偏好设置缺失 → 复用率低'],
+          insights: ['老年模式+多登录 → 解决特殊人群门槛高', '偏好设置 → 提升长期复用率', '信用与帮助入口 → 增强服务可感知性']
+        }
+      };
+
+      const updateMode = (mode) => {
+        const frame = document.getElementById('prototypePhoneFrame');
+        if (frame) {
+          frame.classList.toggle('compare-layout', mode === 'compare');
+        }
+
+        modeButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.mode === mode));
+        modeContents.forEach((node) => node.classList.toggle('active', node.dataset.mode === mode));
+        compareModes.forEach((node) => node.classList.toggle('active', node.dataset.mode === mode));
+
+        if (modeBadge) {
+          modeBadge.textContent = mode === 'optimized' ? '优化版已启用' : mode === 'compare' ? '对比模式' : '现状版展示';
+          modeBadge.className = mode === 'optimized'
+            ? 'rounded-full bg-brandSoft px-3 py-1 text-xs font-semibold text-brand'
+            : mode === 'compare'
+              ? 'rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600'
+              : 'rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600';
+        }
+
+        if (mode === 'optimized') {
+          const navButtons = document.querySelectorAll('[data-opt-nav]');
+          navButtons.forEach((button) => {
+            const isActive = button.dataset.optNav === 'optimized_home';
+            button.classList.toggle('active', isActive);
+          });
+          showOptimizedPage('optimized_home');
+        } else if (mode === 'compare') {
+          setComparePage('home');
+        } else {
+          showCurrentScreen('home');
+        }
+      };
+
+      modeButtons.forEach((button) => {
+        button.addEventListener('click', () => updateMode(button.dataset.mode));
+      });
+
+      const docTabs = document.querySelectorAll('.doc-tab');
+      const docPanels = document.querySelectorAll('.doc-panel');
+
+      docTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          docTabs.forEach((node) => {
+            const active = node === tab;
+            node.classList.toggle('active', active);
+            node.classList.toggle('text-brand', active);
+            node.classList.toggle('text-slate-500', !active);
+            node.classList.toggle('bg-white', active);
+            node.classList.toggle('shadow-sm', active);
+          });
+          docPanels.forEach((panel) => {
+            panel.classList.toggle('active', panel.dataset.panel === tab.dataset.docTab);
+          });
+        });
+      });
+
+      const pageList = document.querySelectorAll('.current-screen');
+      const titleEl = document.getElementById('currentPageTitle');
+      const tabEls = document.querySelectorAll('[data-tab]');
+      const currentPageMap = {
+        home: '南山书房',
+        venue: '丽雅苑',
+        seat: '选座预约',
+        confirm: '预约确认',
+        success: '预约成功',
+        bookingList: '我的预约',
+        profileList: '个人中心',
+        violation: '违约记录',
+        faceAuth: '人脸实名认证',
+      };
+
+      function showCurrentScreen(page) {
+        pageList.forEach((screen) => {
+          screen.classList.toggle('active', screen.dataset.page === page);
+        });
+
+        if (titleEl) titleEl.textContent = currentPageMap[page] || '南山书房';
+
+        const tabKey = ['home', 'bookingList', 'profileList'].includes(page) ? page : (page === 'booking' ? 'bookingList' : (page === 'profile' ? 'profileList' : 'home'));
+        tabEls.forEach((btn) => {
+          const isTabBtn = btn.hasAttribute('data-tab');
+          if (isTabBtn) {
+            const active = btn.dataset.tab === tabKey;
+            btn.classList.toggle('active', active);
+          }
+        });
+      }
+
+      const optimizedScreensList = document.querySelectorAll('.optimized-screen');
+      const optimizedPageTitle = document.getElementById('optimizedPageTitle');
+      const optimizedPageMap = {
+        optimized_home: '南山书房',
+        optimized_venue: '丽雅苑',
+        optimized_seat: '选座预约',
+        optimized_confirm: '预约确认',
+        optimized_booking: '我的预约',
+        optimized_profile: '个人中心',
+        optimized_queue: '候补排队',
+      };
+
+      const compareCurrentTitle = document.getElementById('compareCurrentTitle');
+      const compareOptimizedTitle = document.getElementById('compareOptimizedTitle');
+      const compareCurrentInsight = document.getElementById('compareCurrentInsight');
+      const compareInsightList = document.getElementById('compareInsightList');
+
+      function animateNumericValues(root = document) {
+        root.querySelectorAll('p, span, strong').forEach((node) => {
+          const text = node.textContent.trim();
+          if (!text || !/\d/.test(text) || text.length > 24 || node.children.length) return;
+          node.classList.remove('numeric-pop');
+          void node.offsetWidth;
+          node.classList.add('numeric-pop');
+        });
+      }
+
+      function setComparePage(page) {
+        const selected = comparePageMap[page] || comparePageMap.home;
+        document.querySelectorAll('.compare-screen').forEach((screen) => {
+          screen.classList.toggle('active', screen.dataset.comparePage === page);
+        });
+
+        if (compareCurrentTitle) compareCurrentTitle.textContent = selected.title;
+        if (compareOptimizedTitle) compareOptimizedTitle.textContent = selected.title;
+
+        if (compareCurrentInsight) {
+          const currentItems = selected.currentInsights || selected.insights || [];
+          compareCurrentInsight.innerHTML = currentItems.map((item) => `<li>${item}</li>`).join('');
+        }
+
+        if (compareInsightList) {
+          compareInsightList.innerHTML = (selected.insights || []).map((item) => `<li>${item}</li>`).join('');
+        }
+
+        animateNumericValues(document.querySelector('.compare-mode.active') || document);
+      }
+
+      function showOptimizedPage(page) {
+        optimizedScreensList.forEach((screen) => {
+          screen.classList.toggle('active', screen.dataset.optPage === page);
+        });
+
+        if (optimizedPageTitle) {
+          optimizedPageTitle.textContent = optimizedPageMap[page] || '南山书房';
+        }
+
+        const navButtons = document.querySelectorAll('[data-opt-nav]');
+        navButtons.forEach((button) => {
+          const active = button.dataset.optNav === page;
+          button.classList.toggle('active', active);
+        });
+
+        animateNumericValues(document.querySelector('.optimized-screen.active') || document);
+      }
+
+      document.addEventListener('click', (event) => {
+        const insightToggle = event.target.closest('[data-insight-toggle]');
+        if (insightToggle) {
+          const panel = insightToggle.closest('.compare-insight');
+          const collapsed = panel.classList.toggle('is-collapsed');
+          insightToggle.textContent = collapsed ? '展开' : '收起';
+          insightToggle.setAttribute('aria-expanded', String(!collapsed));
+          return;
+        }
+
+        const compareTab = event.target.closest('[data-compare-tab]');
+        if (compareTab) {
+          const target = compareTab.dataset.compareTab;
+          if (['home', 'booking', 'profile'].includes(target)) {
+            setComparePage(target);
+            document.querySelectorAll('[data-compare-tab]').forEach((button) => {
+              button.classList.toggle('active', button.dataset.compareTab === target);
+            });
+          }
+          return;
+        }
+
+        const compareTrigger = event.target.closest('[data-compare-go]');
+        if (compareTrigger) {
+          const target = compareTrigger.dataset.compareGo;
+          if (['home', 'venue', 'seat', 'confirm', 'booking', 'profile'].includes(target)) {
+            setComparePage(target);
+            document.querySelectorAll('[data-compare-tab]').forEach((button) => {
+              const active = button.dataset.compareTab === target;
+              button.classList.toggle('active', active);
+            });
+          }
+          return;
+        }
+
+        const optimizedNav = event.target.closest('[data-opt-nav]');
+        if (optimizedNav) {
+          showOptimizedPage(optimizedNav.dataset.optNav);
+          return;
+        }
+
+        const optimizedGo = event.target.closest('[data-opt-go]');
+        if (optimizedGo) {
+          showOptimizedPage(optimizedGo.dataset.optGo);
+          return;
+        }
+
+        const optimizedBack = event.target.closest('[data-optimized-back="true"]');
+        if (optimizedBack) {
+          const activePage = document.querySelector('.optimized-screen.active')?.dataset.optPage;
+          if (activePage === 'optimized_venue') showOptimizedPage('optimized_home');
+          if (activePage === 'optimized_seat') showOptimizedPage('optimized_venue');
+          if (activePage === 'optimized_confirm') showOptimizedPage('optimized_seat');
+          if (activePage === 'optimized_queue') showOptimizedPage('optimized_seat');
+          if (activePage === 'optimized_profile') showOptimizedPage('optimized_home');
+          if (activePage === 'optimized_booking') showOptimizedPage('optimized_home');
+          return;
+        }
+
+        const trigger = event.target.closest('[data-go]');
+        if (trigger) {
+          const target = trigger.dataset.go;
+          if (['home', 'venue', 'seat', 'confirm', 'success', 'bookingList', 'profileList', 'violation', 'faceAuth'].includes(target)) {
+            showCurrentScreen(target);
+            if (target === 'home') {
+              document.querySelectorAll('.tab-item').forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === 'home'));
+            }
+          }
+        }
+
+        const tabTrigger = event.target.closest('[data-tab]');
+        if (tabTrigger) {
+          const target = tabTrigger.dataset.tab;
+          if (['home', 'bookingList', 'profileList'].includes(target)) {
+            showCurrentScreen(target);
+          }
+        }
+
+        const dateButton = event.target.closest('[data-date]');
+        if (dateButton) {
+          document.querySelectorAll('[data-date]').forEach((btn) => btn.classList.remove('bg-brand', 'text-white'));
+          dateButton.classList.add('bg-brand', 'text-white');
+          dateButton.classList.remove('bg-slate-100', 'text-slate-600');
+        }
+
+        const zoneButton = event.target.closest('[data-zone]');
+        if (zoneButton) {
+          document.querySelectorAll('[data-zone]').forEach((btn) => {
+            btn.classList.remove('bg-brand', 'text-white');
+            btn.classList.add('bg-slate-100', 'text-slate-600');
+          });
+          zoneButton.classList.remove('bg-slate-100', 'text-slate-600');
+          zoneButton.classList.add('bg-brand', 'text-white');
+        }
+
+        const slotButton = event.target.closest('.slot-btn');
+        if (slotButton) {
+          if (!slotButton.classList.contains('full')) {
+            document.querySelectorAll('.slot-btn').forEach((btn) => {
+              if (!btn.classList.contains('full')) {
+                btn.classList.remove('selected');
+              }
+            });
+            slotButton.classList.add('selected');
+          }
+        }
+
+        const seatMapSeat = event.target.closest('.seat-map-seat');
+        if (seatMapSeat && !seatMapSeat.classList.contains('bg-slate-300')) {
+          document.querySelectorAll('.seat-map-seat').forEach((seat) => {
+            if (!seat.classList.contains('bg-slate-300')) {
+              seat.classList.remove('bg-brand', 'text-white');
+              seat.classList.add('bg-emerald-400', 'text-white');
+              seat.textContent = '空闲';
+            }
+          });
+          seatMapSeat.classList.remove('bg-emerald-400');
+          seatMapSeat.classList.add('bg-brand', 'text-white');
+          seatMapSeat.textContent = '已选';
+        }
+
+        const submitBtn = event.target.closest('[data-submit="booking"]');
+        if (submitBtn) {
+          showCurrentScreen('success');
+          syncBookingOrder();
+        }
+
+        const optimizedSubmit = event.target.closest('[data-opt-submit="optimized_submit"]');
+        if (optimizedSubmit) {
+          showOptimizedPage('optimized_booking');
+          return;
+        }
+
+        const bookingTab = event.target.closest('[data-booking-tab]');
+        if (bookingTab) {
+          const tab = bookingTab.dataset.bookingTab;
+          renderBookingList(tab);
+          document.querySelectorAll('[data-booking-tab]').forEach((btn) => {
+            const active = btn === bookingTab;
+            btn.classList.toggle('bg-brand', active);
+            btn.classList.toggle('text-white', active);
+            btn.classList.toggle('text-slate-600', !active);
+          });
+        }
+
+        const closeModal = event.target.closest('[data-modal-close]');
+        if (closeModal) {
+          document.getElementById('cancelModal').classList.remove('show');
+        }
+
+        const confirmDelete = event.target.closest('[data-modal-confirm]');
+        if (confirmDelete) {
+          document.getElementById('cancelModal').classList.remove('show');
+          bookingState.cancelled = true;
+          renderBookingList('cancelled');
+        }
+
+        const cancelOrderButton = event.target.closest('[data-cancel-order]');
+        if (cancelOrderButton) {
+          document.getElementById('cancelModal').classList.add('show');
+          bookingState.pendingCancelId = cancelOrderButton.dataset.cancelOrder;
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        if (event.target.closest('[data-back="true"]')) {
+          const currentPage = document.querySelector('.current-screen.active')?.dataset.page;
+          if (currentPage === 'venue') showCurrentScreen('home');
+          if (currentPage === 'seat') showCurrentScreen('venue');
+          if (currentPage === 'confirm') showCurrentScreen('seat');
+          if (currentPage === 'success') showCurrentScreen('bookingList');
+          if (currentPage === 'violation') showCurrentScreen('profileList');
+          if (currentPage === 'faceAuth') showCurrentScreen('profileList');
+        }
+      });
+
+      const bookingState = {
+        pendingCancelId: null,
+        cancelled: false,
+        list: [
+          {
+            id: 'NS202609160001',
+            room: '南山书房·丽雅苑',
+            seat: '沉浸阅读1区10号桌',
+            time: '2026-09-16 12:00-15:00',
+            status: 'unfinished',
+            type: '未完成',
+          },
+          {
+            id: 'NS202609100910',
+            room: '南山书房·丽雅苑',
+            seat: '休闲阅读区3号位',
+            time: '2026-09-10 10:00-12:00',
+            status: 'completed',
+            type: '已完成',
+          },
+          {
+            id: 'NS202608290331',
+            room: '南山书房·丽雅苑',
+            seat: '沉浸阅读2区7号桌',
+            time: '2026-08-29 15:00-17:00',
+            status: 'cancelled',
+            type: '已取消',
+          }
+        ]
+      };
+
+      function renderBookingList(type = 'unfinished') {
+        const container = document.getElementById('bookingListContent');
+        if (!container) return;
+
+        const filtered = bookingState.list.filter((item) => item.status === type);
+
+        if (!filtered.length) {
+          container.innerHTML = `<div class="rounded-[20px] bg-white p-5 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-200/80">暂无相关订单</div>`;
+          return;
+        }
+
+        container.innerHTML = filtered.map((item) => `
+          <div class="rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
+            <div class="flex items-center justify-between">
+              <p class="text-sm font-semibold text-slate-800">${item.seat}</p>
+              <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] text-slate-600">${item.type}</span>
+            </div>
+            <p class="mt-2 text-xs text-slate-500">书房：${item.room}</p>
+            <p class="mt-1 text-xs text-slate-500">时间：${item.time}</p>
+            <p class="mt-1 text-xs text-slate-500">订单编号：${item.id}</p>
+            <div class="mt-3 flex gap-2">
+              <button class="flex-1 rounded-full bg-blue-50 px-3 py-2 text-[11px] font-semibold text-brand" type="button">座位地图</button>
+              ${item.status === 'unfinished' ? '<button class="flex-1 rounded-full bg-orange-50 px-3 py-2 text-[11px] font-semibold text-orange-600" data-cancel-order="' + item.id + '" type="button">取消预约</button>' : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function syncBookingOrder() {
+        const order = {
+          id: 'NS202609160001',
+          room: '南山书房·丽雅苑',
+          seat: '沉浸阅读1区10号桌',
+          time: '2026-09-16 12:00-15:00',
+          status: 'unfinished',
+          type: '未完成',
+        };
+        const exists = bookingState.list.some((item) => item.id === order.id);
+        if (!exists) bookingState.list.unshift(order);
+        renderBookingList('unfinished');
+      }
+
+      const seniorToggle = document.getElementById('seniorModeToggle');
+      function applySeniorMode(enabled) {
+        document.body.classList.toggle('senior-mode', enabled);
+        if (seniorToggle) {
+          seniorToggle.setAttribute('aria-pressed', String(enabled));
+          seniorToggle.style.background = enabled ? '#165DFF' : '#d1d5db';
+          const dot = seniorToggle.querySelector('span');
+          if (dot) {
+            dot.style.transform = enabled ? 'translateX(24px)' : 'translateX(4px)';
+          }
+        }
+      }
+
+      if (seniorToggle) {
+        seniorToggle.addEventListener('click', () => {
+          const enabled = !document.body.classList.contains('senior-mode');
+          applySeniorMode(enabled);
+        });
+      }
+
+      renderBookingList('unfinished');
+      showCurrentScreen('home');
+      showOptimizedPage('optimized_home');
+      setComparePage('home');
+      updateMode('optimized');
+      animateNumericValues();
+    </script>
+  </body>
+</html>
