@@ -829,7 +829,7 @@
                           <div class="flex items-center justify-between">
                             <div>
                               <p class="text-[10px] tracking-[0.22em] text-slate-400">Venue</p>
-                              <h3 id="currentVenueName" class="mt-1 text-xl font-bold text-slate-800">丽雅苑</h3>
+                              <h3 id="currentVenueName" class="mt-1 text-xl font-bold text-slate-800">弘毅阁</h3>
                             </div>
                             <span id="currentVenueStatus" class="text-xs text-brand">开放中</span>
                           </div>
@@ -848,7 +848,7 @@
 
                         <div class="mt-5 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
                           <p class="text-[11px] text-slate-500">地址地图</p>
-                          <p id="currentVenueAddress" class="mt-2 text-sm font-semibold text-slate-800">深圳市南山区丽雅苑文化中心</p>
+                          <p id="currentVenueAddress" class="mt-2 text-sm font-semibold text-slate-800">深圳市南山区荔香公园西门北侧</p>
                           <div class="mt-3 flex gap-2">
                             <button class="flex-1 rounded-full bg-slate-100 py-3 text-sm font-semibold text-slate-700" data-go="seatMap" type="button">座位地图</button>
                             <button class="flex-1 rounded-full bg-brand py-3 text-sm font-semibold text-white" data-go="seat" type="button">立即预约</button>
@@ -910,11 +910,11 @@
                           <div class="mt-4 space-y-3 text-sm text-slate-600">
                             <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
                               <span>场馆</span>
-                              <span id="currentConfirmVenue" class="font-semibold text-slate-800">南山书房·丽雅苑</span>
+                              <span id="currentConfirmVenue" class="font-semibold text-slate-800">南山书房·弘毅阁</span>
                             </div>
                             <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
                               <span>已选座位</span>
-                              <span id="currentConfirmSeat" class="font-semibold text-slate-800">沉浸阅读1区-1号</span>
+                              <span id="currentConfirmSeat" class="font-semibold text-slate-800">沉浸 1 区（一楼）-1号</span>
                             </div>
                             <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
                               <span>已选时间</span>
@@ -956,9 +956,9 @@
 
                         <div class="mt-6 rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
                           <div class="space-y-3 text-sm text-slate-600">
-                            <div class="flex justify-between"><span>书房</span><span id="currentSuccessVenue" class="font-semibold text-slate-800">南山书房·丽雅苑</span></div>
+                            <div class="flex justify-between"><span>书房</span><span id="currentSuccessVenue" class="font-semibold text-slate-800">南山书房·弘毅阁</span></div>
                             <div class="flex justify-between"><span>时间</span><span id="currentSuccessTime" class="font-semibold text-slate-800">2026-10-09 12:00-15:00</span></div>
-                            <div class="flex justify-between"><span>座位</span><span id="currentSuccessSeat" class="font-semibold text-slate-800">沉浸阅读1区-1号</span></div>
+                            <div class="flex justify-between"><span>座位</span><span id="currentSuccessSeat" class="font-semibold text-slate-800">沉浸 1 区（一楼）-1号</span></div>
                             <div class="flex justify-between"><span>下单时间</span><span class="font-semibold text-slate-800">2026-10-09 09:41</span></div>
                             <div class="flex justify-between"><span>订单编号</span><span id="currentSuccessOrder" class="font-semibold text-slate-800">NS202609160001</span></div>
                           </div>
@@ -1131,7 +1131,7 @@
                             <span class="flex items-center gap-1"><span class="h-3 w-3 rounded bg-brand"></span>已选</span>
                           </div>
                           <div class="mt-3 rounded-[16px] bg-slate-50 p-4">
-                            <p class="text-center text-[10px] text-slate-400">—— 静音阅读长廊 ——</p>
+                            <p id="currentSeatMapLabel" class="text-center text-[10px] text-slate-400">—— 分区 ——</p>
                             <div id="currentSeatMapGrid" class="mt-3 grid grid-cols-4 gap-2"></div>
                           </div>
                           <p class="mt-3 text-[10px] leading-5 text-slate-500">座位地图为图片版，状态无法实时刷新，需以到馆实际情况为准。</p>
@@ -1157,8 +1157,8 @@
                           </div>
                           <div class="mt-4 space-y-3 text-sm text-slate-600">
                             <div class="flex justify-between"><span>订单编号</span><strong class="text-slate-800">NS202609160001</strong></div>
-                            <div class="flex justify-between"><span>场馆</span><strong class="text-slate-800">南山书房·丽雅苑</strong></div>
-                            <div class="flex justify-between"><span>座位</span><strong class="text-slate-800">沉浸阅读1区-1号</strong></div>
+                            <div class="flex justify-between"><span>场馆</span><strong class="text-slate-800">南山书房·弘毅阁</strong></div>
+                            <div class="flex justify-between"><span>座位</span><strong class="text-slate-800">沉浸 1 区（一楼）-1号</strong></div>
                             <div class="flex justify-between"><span>时间</span><strong class="text-slate-800">2026-10-09 12:00-15:00</strong></div>
                             <div class="flex justify-between"><span>时长</span><strong class="text-slate-800">3 小时</strong></div>
                             <div class="flex justify-between"><span>签到状态</span><strong class="text-orange-600">未签到</strong></div>
@@ -1307,8 +1307,8 @@
                             <button class="font-semibold text-brand" data-action="favorite" type="button">收藏</button>
                           </div>
                           <div class="mt-8 rounded-[18px] bg-white/70 p-3 backdrop-blur-sm">
-                            <p id="optimizedVenueEn" class="text-[10px] tracking-[0.2em] text-slate-500">Liya Yuan</p>
-                            <h3 id="optimizedVenueName" class="mt-1 text-xl font-bold text-slate-800">丽雅苑</h3>
+                            <p id="optimizedVenueEn" class="text-[10px] tracking-[0.2em] text-slate-500">Hongyi Ge</p>
+                            <h3 id="optimizedVenueName" class="mt-1 text-xl font-bold text-slate-800">弘毅阁</h3>
                             <p id="optimizedVenueMeta" class="mt-1 text-[11px] text-slate-600">深圳市南山区 · 距离 1.4km · 开放中</p>
                           </div>
                         </div>
@@ -1365,7 +1365,7 @@
                         <div class="rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
                           <div class="flex items-center justify-between">
                             <span class="text-[11px] text-slate-500">场馆</span>
-                            <span id="optimizedSeatVenue" class="text-sm font-semibold text-slate-800">丽雅苑</span>
+                            <span id="optimizedSeatVenue" class="text-sm font-semibold text-slate-800">弘毅阁</span>
                           </div>
                           <div class="mt-3 grid grid-cols-3 gap-2 text-center">
                             <button class="rounded-full bg-slate-100 px-2 py-2 text-[11px] font-semibold text-slate-600" data-date="周三" type="button">周三</button>
@@ -1426,7 +1426,7 @@
                       <div class="absolute inset-x-4 bottom-4 rounded-[18px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
                         <div class="mb-2 flex items-center justify-between text-[11px] text-slate-500">
                           <span>已选座位</span>
-                          <span id="optimizedSeatSummary" class="font-semibold text-slate-800">沉浸阅读1区 1号</span>
+                          <span id="optimizedSeatSummary" class="font-semibold text-slate-800">沉浸 1 区（一楼）1号</span>
                         </div>
                         <div class="mb-2 flex items-center justify-between text-[11px] text-slate-500">
                           <span>时长</span>
@@ -1447,11 +1447,11 @@
                           <div class="mt-4 space-y-3 text-sm text-slate-600">
                             <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
                               <span>场馆</span>
-                              <span id="optimizedConfirmVenue" class="font-semibold text-slate-800">丽雅苑</span>
+                              <span id="optimizedConfirmVenue" class="font-semibold text-slate-800">弘毅阁</span>
                             </div>
                             <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
                               <span>座位</span>
-                              <span id="optimizedConfirmSeat" class="font-semibold text-slate-800">沉浸阅读1区 1号</span>
+                              <span id="optimizedConfirmSeat" class="font-semibold text-slate-800">沉浸 1 区（一楼）1号</span>
                             </div>
                             <div class="flex items-center justify-between rounded-[14px] bg-slate-50 p-3">
                               <span>时间</span>
@@ -1503,9 +1503,9 @@
                         </div>
                         <div class="mt-4 rounded-[20px] bg-white p-4 shadow-sm ring-1 ring-slate-200/80">
                           <div class="space-y-3 text-sm text-slate-600">
-                            <div class="flex justify-between"><span>场馆</span><strong class="text-slate-800" data-success-room>丽雅苑</strong></div>
+                            <div class="flex justify-between"><span>场馆</span><strong class="text-slate-800" data-success-room>弘毅阁</strong></div>
                             <div class="flex justify-between"><span>时间</span><strong class="text-slate-800" data-success-time>2026-10-09 10:00-14:00</strong></div>
-                            <div class="flex justify-between"><span>座位</span><strong class="text-slate-800" data-success-seat>沉浸阅读1区 1号</strong></div>
+                            <div class="flex justify-between"><span>座位</span><strong class="text-slate-800" data-success-seat>沉浸 1 区（一楼）1号</strong></div>
                           </div>
                           <div class="mt-4 flex h-28 items-center justify-center rounded-[16px] border-4 border-slate-800 bg-white text-xl font-bold tracking-[0.4em] text-slate-800">▦ QR</div>
                           <p class="mt-2 text-center text-[10px] text-slate-500">入馆须知：请携带有效证件，预约开始前30分钟至开始后20分钟内签到。</p>
@@ -1592,7 +1592,7 @@
                         <div class="mt-4 rounded-[20px] bg-white p-3 shadow-sm ring-1 ring-slate-200/80">
                           <h3 class="text-sm font-bold text-slate-800">预约偏好设置</h3>
                           <div class="mt-2 space-y-2 text-[11px] text-slate-600">
-                            <p>• 常用场馆：南山书房·丽雅苑 / 南山图书馆总馆</p>
+                            <p>• 常用场馆：南山书房·弘毅阁 / 南山图书馆总馆</p>
                             <p>• 常用时段：下午 14:00-18:00</p>
                             <p>• 自动续约：已开启</p>
                           </div>
@@ -1704,9 +1704,9 @@
                             <span class="flex items-center gap-1"><span class="h-3 w-3 rounded bg-brand"></span>已选</span>
                           </div>
                           <div class="mt-3 rounded-[16px] bg-slate-50 p-4">
-                            <p class="text-center text-[10px] text-slate-400">—— 静音阅读长廊 ——</p>
+                            <p id="optimizedSeatMapLabelA" class="text-center text-[10px] text-slate-400">—— 分区一 ——</p>
                             <div id="optimizedSeatMapGrid" class="mt-3 grid grid-cols-4 gap-2"></div>
-                            <p class="mt-3 text-center text-[10px] text-slate-400">—— 采光阅读区 ——</p>
+                            <p id="optimizedSeatMapLabelB" class="mt-3 text-center text-[10px] text-slate-400">—— 分区二 ——</p>
                             <div id="optimizedSeatMapGridB" class="mt-2 grid grid-cols-4 gap-2"></div>
                           </div>
                           <p id="optimizedSeatMapMeta" class="mt-3 text-[10px] leading-5 text-slate-500"></p>
@@ -1732,8 +1732,8 @@
                           </div>
                           <div class="mt-4 space-y-3 text-sm text-slate-600">
                             <div class="flex justify-between"><span>订单编号</span><strong class="text-slate-800">NS202609160001</strong></div>
-                            <div class="flex justify-between"><span>场馆</span><strong class="text-slate-800">南山书房·丽雅苑</strong></div>
-                            <div class="flex justify-between"><span>座位</span><strong class="text-slate-800">沉浸阅读1区 1号</strong></div>
+                            <div class="flex justify-between"><span>场馆</span><strong class="text-slate-800">南山书房·弘毅阁</strong></div>
+                            <div class="flex justify-between"><span>座位</span><strong class="text-slate-800">沉浸 1 区（一楼）1号</strong></div>
                             <div class="flex justify-between"><span>时间</span><strong class="text-slate-800">2026-10-09 10:00-14:00</strong></div>
                             <div class="flex justify-between"><span>时长</span><strong class="text-slate-800">4 小时</strong></div>
                             <div class="flex justify-between"><span>签到状态</span><strong class="text-orange-600">未签到</strong></div>
@@ -1894,7 +1894,7 @@
                     <div class="compare-screen" data-compare-page="venue">
                       <div class="compare-card">
                         <p class="text-[10px] tracking-[0.2em] text-slate-400">Venue</p>
-                        <h3 id="compareCurrentVenueName" class="mt-2 text-xl font-bold text-slate-800">丽雅苑</h3>
+                        <h3 id="compareCurrentVenueName" class="mt-2 text-xl font-bold text-slate-800">弘毅阁</h3>
                         <p id="compareCurrentVenueMeta" class="mt-2 text-[11px] text-slate-500">开放中 · 距离 1.4km</p>
                         <div id="compareCurrentVenueMetrics" class="compare-mini-grid"></div>
                         <p class="mt-2 text-[10px] text-slate-400">静态数据 · 需逐页查询，非实时</p>
@@ -1918,9 +1918,9 @@
                       <div class="compare-card">
                         <p class="text-sm font-bold text-slate-800">预约确认</p>
                         <div class="mt-3 space-y-2 text-[11px] text-slate-600">
-                          <p>场馆：丽雅苑</p>
+                          <p>场馆：弘毅阁</p>
                           <p>时间：12:00-15:00</p>
-                          <p>座位：沉浸阅读1区10号桌</p>
+                          <p>座位：沉浸 1 区（一楼）10号桌</p>
                         </div>
                         <button class="compare-cta" data-compare-go="booking" type="button">提交预约</button>
                       </div>
@@ -2002,7 +2002,7 @@
                     <div class="compare-screen" data-compare-page="venue">
                       <div class="compare-card">
                         <p class="text-[10px] tracking-[0.2em] text-brand">Venue</p>
-                        <h3 id="compareOptimizedVenueName" class="mt-2 text-xl font-bold text-slate-800">丽雅苑</h3>
+                        <h3 id="compareOptimizedVenueName" class="mt-2 text-xl font-bold text-slate-800">弘毅阁</h3>
                         <p id="compareOptimizedVenueMeta" class="mt-2 text-[11px] text-slate-500">实景 · 距离 1.4km · 收藏</p>
                         <div id="compareOptimizedVenueMetrics" class="compare-mini-grid"></div>
                         <p class="mt-2 text-[10px] text-brand">实时同步 · 每 5 分钟刷新</p>
@@ -2134,18 +2134,23 @@
                 <div class="rounded-2xl border-l-4 border-slate-400 bg-slate-100 p-3"><div class="flex items-center gap-2"><span class="rounded-full bg-slate-500 px-2 py-0.5 text-[10px] font-bold text-white">P3</span><p class="text-sm font-bold text-slate-800">登录方式门槛高</p></div><p class="mt-2 text-xs leading-5 text-slate-600">强制人脸核验，老年/青少年无简易登录通道。影响人群：老年用户、青少年用户。</p></div>
                 <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
                   <p class="text-sm font-semibold text-slate-800">真实用户原声</p>
+                  <p class="mt-1 text-[10px] text-slate-400">评论来源：南山书房用户评论语料库（28 条 · 跨 15 个平台）</p>
                   <div class="mt-3 space-y-2">
                     <div class="rounded-xl bg-white p-3 ring-1 ring-slate-200">
-                      <div class="flex items-center justify-between text-[10px] text-slate-400"><span class="font-semibold text-slate-500">抖音</span><span>2026-07-27</span></div>
-                      <p class="mt-1.5 text-xs leading-5 text-slate-600">“南山书房环境很好，就是比较难预约”</p>
+                      <div class="flex items-center justify-between text-[10px] text-slate-400"><span class="font-semibold text-slate-500">36氪 · 难预约</span><span>2026-08-27</span></div>
+                      <p class="mt-1.5 text-xs leading-5 text-slate-600">“周末的窗景阅读位要提前两天在小程序里预约，得晚上 8 点卡点抢，手慢就没”</p>
                     </div>
                     <div class="rounded-xl bg-white p-3 ring-1 ring-slate-200">
-                      <div class="flex items-center justify-between text-[10px] text-slate-400"><span class="font-semibold text-slate-500">新周刊</span><span>2026-09-07</span></div>
-                      <p class="mt-1.5 text-xs leading-5 text-slate-600">“周末窗景位要提前两天晚上 8 点卡点抢，手慢就没”</p>
+                      <div class="flex items-center justify-between text-[10px] text-slate-400"><span class="font-semibold text-slate-500">抖音 · 违约/签到</span><span>2024-08-26</span></div>
+                      <p class="mt-1.5 text-xs leading-5 text-slate-600">“弘毅阁免费预约，迟到不可超过 20 分钟，不然会被记违约……想选靠近窗的位置必须准点抢”</p>
                     </div>
                     <div class="rounded-xl bg-white p-3 ring-1 ring-slate-200">
-                      <div class="flex items-center justify-between text-[10px] text-slate-400"><span class="font-semibold text-slate-500">抖音</span><span>2024-08-26</span></div>
-                      <p class="mt-1.5 text-xs leading-5 text-slate-600">“迟到超过 20 分钟会被记违约，窗边位必须准点抢”</p>
+                      <div class="flex items-center justify-between text-[10px] text-slate-400"><span class="font-semibold text-slate-500">南都 · 占座问题</span><span>2025-06-10</span></div>
+                      <p class="mt-1.5 text-xs leading-5 text-slate-600">“好多人一占就是 3 小时，真正想来看书学习的人在馆里转一圈找不到座”</p>
+                    </div>
+                    <div class="rounded-xl bg-white p-3 ring-1 ring-slate-200">
+                      <div class="flex items-center justify-between text-[10px] text-slate-400"><span class="font-semibold text-slate-500">人民论坛网 · 老年门槛</span><span>2026-01-28</span></div>
+                      <p class="mt-1.5 text-xs leading-5 text-slate-600">“预约渠道单一固化……不熟悉智能设备的老年人容易因不会约、不能约被挡在门外”</p>
                     </div>
                   </div>
                 </div>
@@ -2178,14 +2183,16 @@
                 <div class="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
                   <p class="mb-3 text-sm font-semibold text-slate-800">统一场馆库</p>
                   <div class="overflow-x-auto">
-                    <table class="w-full min-w-[520px] text-left text-[10px]">
+                    <table class="w-full min-w-[720px] text-left text-[10px]">
                       <thead class="text-slate-400">
                         <tr>
                           <th class="p-1.5">场馆</th>
                           <th class="p-1.5">类型</th>
-                          <th class="p-1.5">距离</th>
-                          <th class="p-1.5">开放时间</th>
+                          <th class="p-1.5">地址</th>
+                          <th class="p-1.5">面积</th>
                           <th class="p-1.5">座位</th>
+                          <th class="p-1.5">沉浸席</th>
+                          <th class="p-1.5">休闲席</th>
                           <th class="p-1.5">空位</th>
                           <th class="p-1.5">上座率</th>
                         </tr>
@@ -2293,143 +2300,217 @@
           '07:00-09:00 早间空位较充足',
         ],
 
-        /* 现状版仅暴露丽雅苑一个入口，其余场馆需跳转其他系统 —— 对应「信息割裂」痛点 */
-        currentAppExposed: ['liyayuan'],
+        /* 现状版与优化版都列出全部场馆；「信息割裂」痛由列表里的「空位需逐页查询」文案承载 */
+        currentAppExposed: ['nslib_main', 'nslib_taoyuan', 'pingyuanxuan', 'tingyunxuan', 'xunfengge', 'xiangqunxuan', 'hongyige'],
 
         /* 场馆清单：全部页面共用这一套 */
         venues: [
-          {
-            id: 'liyayuan',
-            name: '南山书房·丽雅苑',
-            short: '丽雅苑',
-            en: 'Liya Yuan',
-            kind: '书房',
-            address: '深圳市南山区丽雅苑文化中心',
-            district: '南山区',
-            distance: 1.4,
-            openHours: '09:00-21:00',
-            status: 'open',
-            total: 200,
-            available: 64,
-            occupancy: 68,
-            avgStay: '2.3h',
-            peakHour: '18:00',
-            longSlot: true,
-            transit: '近地铁 1 号线桃园站',
-            highlight: '近社区 · 沉浸阅读首选',
-            tags: ['沉浸阅读', '休闲阅读', '馨语空间', '丽雅艺术空间'],
-            rooms: [
-              { name: '沉浸阅读1区', available: 12, total: 24, rule: '预约座位制，一人一座' },
-              { name: '沉浸阅读2区', available: 10, total: 24, rule: '预约座位制，一人一座' },
-              { name: '休闲阅读区', available: 24, total: 56, rule: '预约座位制，一人一座' },
-              { name: '馨语空间', available: 8, total: 46, rule: '预约座位制，一人一座' },
-              { name: '丽雅艺术空间', available: 10, total: 50, rule: '预约座位制，一人一座' },
-            ],
-          },
           {
             id: 'nslib_main',
             name: '南山图书馆总馆',
             short: '南山图书馆总馆',
             en: 'Nanshan Library',
             kind: '图书馆',
-            address: '深圳市南山区常兴路 176 号',
+            address: '深圳市南山区南头街道常兴路 176 号',
             district: '南山区',
-            distance: 0.8,
-            openHours: '09:00-21:00',
-            status: 'open',
-            total: 1200,
+            distance: 1.2,
+            area: '建筑 18,700㎡',
+            openHours: '周二至周日 09:00-21:00',
+            status: 'busy',
+            total: 1741,
             available: 118,
-            occupancy: 90,
+            occupancy: 93,
             avgStay: '3.1h',
             peakHour: '19:00',
             longSlot: true,
-            transit: '近地铁 1 号线大新站',
-            highlight: '近地铁 · 座位总量最大',
-            tags: ['自习区', '期刊阅览', '电子阅览', '少儿阅读'],
+            transit: '地铁 1 号线桃园站 B 口步行约 480 米',
+            highlight: '总馆 · 座位总量最大',
+            feature: '综合阅读区、报刊区、少儿区、电子阅览区；设计藏书 60 万册',
+            immersive: null,
+            leisure: null,
+            tags: ['综合阅读', '报刊阅览', '少儿阅读', '电子阅览'],
             rooms: [
-              { name: '自习区A', available: 40, total: 300, rule: '预约座位制，一人一座' },
-              { name: '自习区B', available: 32, total: 300, rule: '预约座位制，一人一座' },
-              { name: '期刊阅览区', available: 20, total: 200, rule: '预约座位制，一人一座' },
-              { name: '电子阅览区', available: 16, total: 200, rule: '需读者证登录' },
-              { name: '少儿阅览区', available: 10, total: 200, rule: '限 14 岁以下读者' },
+              { name: '综合阅读区', available: 84, total: 1200, rule: '预约座位制，一人一座' },
+              { name: '报刊阅览区', available: 18, total: 200, rule: '预约座位制，一人一座' },
+              { name: '少儿阅读区', available: 12, total: 200, rule: '限 14 岁以下读者' },
+              { name: '电子阅览区', available: 4, total: 141, rule: '需读者证登录' },
             ],
           },
           {
-            id: 'nslib_xili',
-            name: '南山图书馆西丽分馆',
-            short: '西丽分馆',
-            en: 'Xili Branch',
+            id: 'nslib_taoyuan',
+            name: '南山图书馆桃源分馆',
+            short: '桃源分馆',
+            en: 'Taoyuan Branch',
             kind: '图书馆',
-            address: '深圳市南山区西丽街道同富裕工业城',
+            address: '深圳市南山区桃源街道学苑大道 桃源文化中心 3 楼',
             district: '南山区',
-            distance: 2.1,
-            openHours: '09:00-20:30',
+            distance: 3.6,
+            area: '480㎡',
+            openHours: '周二至周五 10:00-21:00 · 周末 10:00-17:00',
             status: 'open',
-            total: 320,
-            available: 86,
-            occupancy: 73,
-            avgStay: '2.4h',
-            peakHour: '18:30',
-            longSlot: true,
-            transit: '近地铁 5 号线西丽站',
-            highlight: '西丽片区 · 通勤顺路',
-            tags: ['自习区', '报刊阅览', '少儿阅读'],
+            total: 80,
+            available: 24,
+            occupancy: 70,
+            avgStay: '2.0h',
+            peakHour: '16:00',
+            longSlot: false,
+            transit: '学苑大道与唯科路交叉口北 60 米',
+            highlight: '桃源片区 · 亲子阅读友好',
+            feature: '报刊阅览区、儿童阅览室、青少年专架、电子阅览区（10 台电脑）',
+            immersive: null,
+            leisure: null,
+            tags: ['报刊阅览', '儿童阅读', '青少年', '电子阅览'],
             rooms: [
-              { name: '自习区', available: 46, total: 160, rule: '预约座位制，一人一座' },
-              { name: '报刊阅览区', available: 22, total: 80, rule: '预约座位制，一人一座' },
-              { name: '少儿阅览区', available: 18, total: 80, rule: '限 14 岁以下读者' },
+              { name: '报刊阅览区', available: 10, total: 30, rule: '预约座位制，一人一座' },
+              { name: '儿童阅览室', available: 7, total: 20, rule: '需成人陪同' },
+              { name: '青少年专架', available: 5, total: 20, rule: '预约座位制，一人一座' },
+              { name: '电子阅览区', available: 2, total: 10, rule: '需读者证登录' },
             ],
           },
           {
-            id: 'nslib_tech',
-            name: '南山图书馆科技分馆',
-            short: '科技分馆',
-            en: 'Tech Branch',
-            kind: '图书馆',
-            address: '深圳市南山区科技园科苑路',
+            id: 'pingyuanxuan',
+            name: '南山书房·平原轩',
+            short: '平原轩',
+            en: 'Pingyuan Xuan',
+            kind: '书房',
+            address: '深圳市南山区海天一路百度国际大厦西塔楼 1 楼',
             district: '南山区',
-            distance: 1.1,
-            openHours: '09:00-21:00',
-            status: 'busy',
-            total: 260,
-            available: 31,
-            occupancy: 88,
-            avgStay: '3.6h',
+            distance: 2.4,
+            area: '170㎡',
+            openHours: '08:00-23:00',
+            status: 'open',
+            total: 48,
+            available: 14,
+            occupancy: 71,
+            avgStay: '2.6h',
             peakHour: '20:00',
             longSlot: true,
-            transit: '近地铁 1 号线高新园站',
-            highlight: '近地铁 · 支持研讨间',
-            tags: ['自习区', '研讨间', '电子阅览'],
+            transit: '地铁 2/8 号线科苑站 A 口步行约 10 分钟',
+            highlight: '陈平原主理 · 沉浸区一座难抢',
+            feature: '陈平原主理，两层空间；沉浸区「一座难抢」',
+            immersive: 21,
+            leisure: 27,
+            tags: ['沉浸阅读', '休闲阅读', '陈平原'],
             rooms: [
-              { name: '自习区', available: 15, total: 120, rule: '预约座位制，一人一座' },
-              { name: '研讨间', available: 6, total: 40, rule: '需 2 人以上成组预约' },
-              { name: '电子阅览区', available: 10, total: 100, rule: '需读者证登录' },
+              { name: '沉浸阅读区', available: 5, total: 21, rule: '预约座位制，一人一座' },
+              { name: '休闲阅读区', available: 9, total: 27, rule: '预约座位制，一人一座' },
             ],
           },
           {
-            id: 'haideyuan',
-            name: '南山书房·海德园',
-            short: '海德园',
-            en: 'Haide Yuan',
+            id: 'tingyunxuan',
+            name: '南山书房·听云轩',
+            short: '听云轩',
+            en: 'Tingyun Xuan',
             kind: '书房',
-            address: '深圳市南山区海德三道海德园',
+            address: '深圳市南山区科苑北路酷派大厦 C 座 1 楼（梦溪道 2 号）',
             district: '南山区',
-            distance: 2.3,
-            openHours: '08:30-21:30',
-            status: 'busy',
-            total: 160,
-            available: 24,
-            occupancy: 85,
-            avgStay: '2.8h',
+            distance: 1.8,
+            area: '190㎡',
+            openHours: '08:00-23:00',
+            status: 'open',
+            total: 60,
+            available: 18,
+            occupancy: 70,
+            avgStay: '2.5h',
             peakHour: '19:30',
-            longSlot: false,
-            transit: '近地铁 2 号线后海站',
-            highlight: '近景区 · 亲子阅读友好',
-            tags: ['沉浸自习', '休闲阅读', '亲子阅读'],
+            longSlot: true,
+            transit: '地铁 5 号线西丽站 B 口',
+            highlight: '名人会客厅 · 捐书荐书',
+            feature: '名人会客厅、名人捐书 / 荐书区',
+            immersive: 32,
+            leisure: 28,
+            tags: ['沉浸阅读', '休闲阅读', '名人会客厅'],
             rooms: [
-              { name: '沉浸自习区', available: 10, total: 60, rule: '预约座位制，一人一座' },
-              { name: '休闲阅读区', available: 8, total: 50, rule: '预约座位制，一人一座' },
-              { name: '亲子阅读区', available: 6, total: 50, rule: '需成人陪同' },
+              { name: '沉浸阅读区', available: 8, total: 32, rule: '预约座位制，一人一座' },
+              { name: '休闲阅读区', available: 10, total: 28, rule: '预约座位制，一人一座' },
+            ],
+          },
+          {
+            id: 'xunfengge',
+            name: '南山书房·薰风阁',
+            short: '薰风阁',
+            en: 'Xunfeng Ge',
+            kind: '书房',
+            address: '深圳市南山区香山东街 14 号 华侨城欢乐时光连廊 2 层',
+            district: '南山区',
+            distance: 3.1,
+            area: '250㎡',
+            openHours: '08:00-23:00',
+            status: 'busy',
+            total: 65,
+            available: 16,
+            occupancy: 75,
+            avgStay: '2.4h',
+            peakHour: '19:00',
+            longSlot: true,
+            transit: '华侨城欢乐时光连廊 2 层',
+            highlight: '王鲁湘主理 · 名家书房',
+            feature: '王鲁湘主理，名家书房风格',
+            immersive: 41,
+            leisure: 24,
+            tags: ['沉浸阅读', '休闲阅读', '名家书房'],
+            rooms: [
+              { name: '沉浸阅读区', available: 9, total: 41, rule: '预约座位制，一人一座' },
+              { name: '休闲阅读区', available: 7, total: 24, rule: '预约座位制，一人一座' },
+            ],
+          },
+          {
+            id: 'xiangqunxuan',
+            name: '南山书房·象群轩',
+            short: '象群轩',
+            en: 'Xiangqun Xuan',
+            kind: '书房',
+            address: '深圳市南山区西丽街道同发路 2 号丽雅苑 3 栋 2 楼',
+            district: '南山区',
+            distance: 1.6,
+            area: '520㎡',
+            openHours: '08:00-23:00',
+            status: 'busy',
+            total: 92,
+            available: 21,
+            occupancy: 77,
+            avgStay: '2.8h',
+            peakHour: '20:00',
+            longSlot: true,
+            transit: '地铁 5 号线留仙洞站 B 口步行约 10 分钟',
+            highlight: '象群艺术空间 · 冥想室',
+            feature: '象群艺术空间、馨语空间、2 间冥想室、雕刻艺术主题',
+            immersive: 55,
+            leisure: 37,
+            tags: ['沉浸阅读', '休闲阅读', '象群艺术空间', '冥想室'],
+            rooms: [
+              { name: '沉浸阅读区', available: 12, total: 55, rule: '预约座位制，一人一座' },
+              { name: '休闲阅读区', available: 9, total: 37, rule: '预约座位制，一人一座' },
+            ],
+          },
+          {
+            id: 'hongyige',
+            name: '南山书房·弘毅阁',
+            short: '弘毅阁',
+            en: 'Hongyi Ge',
+            kind: '书房',
+            address: '深圳市南山区荔香公园西门北侧',
+            district: '南山区',
+            distance: 0.8,
+            area: '未公开',
+            openHours: '08:00-23:00',
+            status: 'busy',
+            total: 123,
+            available: 28,
+            occupancy: 77,
+            avgStay: '2.9h',
+            peakHour: '19:00',
+            longSlot: true,
+            transit: '地铁 12 号线南头古城站 A 口步行约 600 米',
+            highlight: '荔香公园 · 沉浸双区',
+            feature: '沉浸 1 区（一楼）/ 2 区（二楼）、阶梯阅读区、亲子空间、荔香大讲堂、G+ 生活馆',
+            immersive: 63,
+            leisure: 60,
+            tags: ['沉浸阅读', '休闲阅读', '阶梯阅读', '亲子空间'],
+            rooms: [
+              { name: '沉浸 1 区（一楼）', available: 7, total: 32, rule: '预约座位制，一人一座' },
+              { name: '沉浸 2 区（二楼）', available: 6, total: 31, rule: '预约座位制，一人一座' },
+              { name: '休闲阅读区', available: 15, total: 60, rule: '预约座位制，一人一座' },
             ],
           },
         ],
@@ -2654,7 +2735,7 @@
             </div>
             <div class="rounded-[16px] bg-slate-50 p-2">
               <p class="text-[10px] text-slate-500">峰时</p>
-              <p class="mt-1 text-sm font-bold text-slate-800">18:00-20:00</p>
+              <p class="mt-1 text-sm font-bold text-slate-800">${STUDY_DATA.peakWindows[0].split(' ')[0]}</p>
             </div>`;
         }
 
@@ -2705,12 +2786,12 @@
         }
 
         if (filters) {
-          filters.innerHTML = [
-            `开放时间 ${v.openHours}`,
-            v.transit,
-            v.longSlot ? '支持长时段预约' : '暂不支持长时段',
-            `座位总数 ${v.total}`,
-          ].map((text) => `<span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] text-slate-600">${text}</span>`).join('');
+          const chips = [`开放时间 ${v.openHours}`, `面积 ${v.area}`, `座位总数 ${v.total}`];
+          if (v.immersive) chips.push(`沉浸席 ${v.immersive} · 休闲席 ${v.leisure}`);
+          chips.push(v.transit, v.longSlot ? '支持长时段预约' : '暂不支持长时段');
+          const featureChip = `<span class="rounded-full bg-brandSoft px-2.5 py-1 text-[10px] text-brand">${v.feature}</span>`;
+          filters.innerHTML = featureChip
+            + chips.map((text) => `<span class="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] text-slate-600">${text}</span>`).join('');
         }
 
         if (heat) {
@@ -2904,7 +2985,7 @@
         if (optimized) {
           optimized.innerHTML = [
             ...Venue.sorted().slice(0, 3).map((v) => `<p>• ${v.name} · ${v.occupancy}% · ${v.distance}km</p>`),
-            '<p>• 18:00-20:00 高峰提醒已开启</p>',
+            `<p>• ${STUDY_DATA.peakWindows[0].split(' ')[0]} 高峰提醒已开启</p>`,
           ].join('');
         }
         const currentMetrics = document.getElementById('compareCurrentMetrics');
@@ -2940,18 +3021,23 @@
           <tr class="border-t border-slate-100">
             <td class="p-1.5">${v.name}</td>
             <td class="p-1.5">${v.kind}</td>
-            <td class="p-1.5">${v.distance}km</td>
-            <td class="p-1.5">${v.openHours}</td>
+            <td class="p-1.5">${v.address.replace('深圳市南山区', '')}</td>
+            <td class="p-1.5">${v.area}</td>
             <td class="p-1.5">${v.total}</td>
+            <td class="p-1.5">${v.immersive ?? '—'}</td>
+            <td class="p-1.5">${v.leisure ?? '—'}</td>
             <td class="p-1.5">${v.available}</td>
             <td class="p-1.5">${v.occupancy}%</td>
           </tr>`).join('');
 
         const meta = document.getElementById('docVenueMeta');
         if (meta) {
+          const immersive = Venue.all().reduce((sum, v) => sum + (v.immersive || 0), 0);
+          const leisure = Venue.all().reduce((sum, v) => sum + (v.leisure || 0), 0);
           meta.innerHTML = `
             <div class="flex items-center justify-between"><span>数据来源</span><strong class="text-slate-700">${STUDY_DATA.meta.source}</strong></div>
             <div class="flex items-center justify-between"><span>覆盖范围</span><strong class="text-slate-700">${Venue.all().length} 个场馆 · ${Venue.seatTotal()} 个座位</strong></div>
+            <div class="flex items-center justify-between"><span>沉浸席 / 休闲席</span><strong class="text-slate-700">${immersive} / ${leisure}</strong></div>
             <div class="flex items-center justify-between"><span>实时空位合计</span><strong class="text-slate-700">${Venue.availableTotal()}</strong></div>
             <div class="flex items-center justify-between"><span>最近更新</span><strong class="text-slate-700">${STUDY_DATA.meta.updatedAt}</strong></div>`;
         }
@@ -2980,6 +3066,8 @@
         const room = v.rooms.find((r) => r.name === uiState.currentZone) || v.rooms[0];
         const grid = document.getElementById('currentSeatMapGrid');
         if (grid) grid.innerHTML = Venue.seatGrid(room, false);
+        const label = document.getElementById('currentSeatMapLabel');
+        if (label) label.textContent = `—— ${room.name} ——`;
       }
 
       /* 优化版时段：时长 chips → 起始/结束时间、摘要与确认页联动 */
@@ -3008,9 +3096,15 @@
         const v = Venue.byId(uiState.optimizedVenueId);
         const grid = document.getElementById('optimizedSeatMapGrid');
         const gridB = document.getElementById('optimizedSeatMapGridB');
+        const labelA = document.getElementById('optimizedSeatMapLabelA');
+        const labelB = document.getElementById('optimizedSeatMapLabelB');
         const meta = document.getElementById('optimizedSeatMapMeta');
-        if (grid) grid.innerHTML = Venue.seatGrid(v.rooms[0], false);
-        if (gridB) gridB.innerHTML = Venue.seatGrid(v.rooms[1] || v.rooms[0], false);
+        const roomA = v.rooms[0];
+        const roomB = v.rooms[1] || v.rooms[0];
+        if (grid) grid.innerHTML = Venue.seatGrid(roomA, false);
+        if (gridB) gridB.innerHTML = Venue.seatGrid(roomB, false);
+        if (labelA) labelA.textContent = `—— ${roomA.name} ——`;
+        if (labelB) labelB.textContent = `—— ${roomB.name} ——`;
         if (meta) {
           meta.textContent = `${v.name} · 空位 ${v.available} / ${v.total} · 上座率 ${v.occupancy}% · 数据更新于 ${STUDY_DATA.meta.updatedAt}`;
         }
@@ -3145,7 +3239,7 @@
           insights: ['双系统整合 → 解决信息不同步，操作步骤减少50%', '共享场馆信息 → 降低用户判断成本', '高峰时段预警 → 提前规避拥堵']
         },
         venue: {
-          title: '丽雅苑',
+          title: '弘毅阁',
           currentInsights: ['场馆信息过度分散 → 需多次切换页面才知道可预约情况', '实时空位不透明 → 用户难以判断预约成功率', '区位信息弱 → 选择成本高'],
           insights: ['实景+上座率 → 降低信息差，提升预约信心', '分区热力图 → 让用户快速判断座位状态', '时段筛选 → 简化决策路径']
         },
@@ -3894,15 +3988,15 @@
         list: [
           {
             id: 'NS202609160001',
-            room: '南山书房·丽雅苑',
-            seat: '沉浸阅读1区10号桌',
+            room: '南山书房·弘毅阁',
+            seat: '沉浸 1 区（一楼）10号桌',
             time: '2026-10-09 12:00-15:00',
             status: 'unfinished',
             type: '未完成',
           },
           {
             id: 'NS202609100910',
-            room: '南山书房·丽雅苑',
+            room: '南山书房·平原轩',
             seat: '休闲阅读区3号位',
             time: '2026-09-10 10:00-12:00',
             status: 'completed',
@@ -3910,8 +4004,8 @@
           },
           {
             id: 'NS202608290331',
-            room: '南山书房·丽雅苑',
-            seat: '沉浸阅读2区7号桌',
+            room: '南山书房·象群轩',
+            seat: '沉浸阅读区7号桌',
             time: '2026-08-29 15:00-17:00',
             status: 'cancelled',
             type: '已取消',
@@ -3963,7 +4057,7 @@
         `).join('');
       }
 
-      function syncBookingOrder(room = '南山书房·丽雅苑', seat = '沉浸阅读1区 1号', time = '2026-10-09 12:00-15:00') {
+      function syncBookingOrder(room = '南山书房·弘毅阁', seat = '沉浸 1 区（一楼）1号', time = '2026-10-09 12:00-15:00') {
         const order = {
           id: bookingState.rescheduleId || 'NS202609160001',
           room,
